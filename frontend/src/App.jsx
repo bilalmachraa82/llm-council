@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
+import LandingPage from './components/LandingPage';
 import { api } from './api';
 import './App.css';
 
 function App() {
+  const [inChamber, setInChamber] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
@@ -181,6 +183,10 @@ function App() {
     }
   };
 
+  if (!inChamber) {
+    return <LandingPage onEnter={() => setInChamber(true)} />;
+  }
+
   return (
     <div className="app">
       <Sidebar
@@ -194,6 +200,7 @@ function App() {
         onSendMessage={handleSendMessage}
         isLoading={isLoading}
       />
+      <div className="watermark">Powered by AiParaTi</div>
     </div>
   );
 }
