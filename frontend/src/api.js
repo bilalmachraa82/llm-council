@@ -67,6 +67,51 @@ export const api = {
   },
 
   /**
+   * Send a voice message and get a stream of events.
+   * @param {string} conversationId
+   * @param {Blob} audioBlob
+   * @param {string} tier "pro" or "budget"
+   * @param {function} onEvent Callback for each SSE event
+   */
+  async sendAudioMessageStream(conversationId, audioBlob, tier, onEvent) {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'voice_message.webm');
+
+    const response = await fetch(`${API_BASE}/api/conversations/${conversationId}/message/audio?tier=${tier}`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop(); // Keep incomplete chunk
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            onEvent(data);
+          } catch (e) {
+            console.error('Error parsing SSE event:', e);
+          }
+        }
+      }
+    }
+  },
+
+  /**
    * Send a message and receive streaming updates.
    * @param {string} conversationId - The conversation ID
    * @param {string} content - The message content

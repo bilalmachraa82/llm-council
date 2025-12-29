@@ -1,16 +1,17 @@
 """FastAPI backend for LLM Council."""
 
-import os
-from fastapi import FastAPI, HTTPException
+import shutil
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import uuid
 import json
 import asyncio
 
 from . import storage_prisma as storage
+from . import voice
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
 
 app = FastAPI(title="LLM Council API")
@@ -197,6 +198,122 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
 
         except Exception as e:
             # Send error event
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
+
+
+
+@app.post("/api/conversations/{conversation_id}/message/audio")
+async def send_audio_message(
+    conversation_id: str,
+    audio: UploadFile = File(...),
+    tier: str = "pro"
+):
+    """
+    Receive audio, transcribe it, run council, and stream back events + TTS audio.
+    """
+    # Check conversation
+    conversation = await storage.get_conversation(conversation_id)
+    if conversation is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    # Save temp audio file
+    temp_filename = f"temp_{uuid.uuid4()}.webm"
+    with open(temp_filename, "wb") as buffer:
+        shutil.copyfileobj(audio.file, buffer)
+
+    try:
+        # Transcribe
+        transcription = await voice.transcribe_audio(temp_filename)
+    finally:
+        # Cleanup input audio
+        if os.path.exists(temp_filename):
+            os.remove(temp_filename)
+
+    # Re-use the existing stream logic, but wrapped to handle the transcription
+    # We will yield an initial event with the transcription so frontend can display it
+    
+    is_first_message = len(conversation["messages"]) == 0
+
+    async def event_generator():
+        try:
+            # Send transcription event first
+            yield f"data: {json.dumps({'type': 'transcription', 'text': transcription})}\n\n"
+
+            # Add user message
+            await storage.add_user_message(conversation_id, transcription)
+
+            # Start title generation
+            title_task = None
+            if is_first_message:
+                title_task = asyncio.create_task(generate_conversation_title(transcription))
+
+            # Stage 1
+            yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
+            stage1_results = await stage1_collect_responses(transcription, tier)
+            yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
+
+            # Stage 2
+            yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
+            stage2_results, label_to_model = await stage2_collect_rankings(transcription, stage1_results, tier)
+            aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+            yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
+
+            # Stage 3
+            yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
+            stage3_result = await stage3_synthesize_final(transcription, stage1_results, stage2_results, tier)
+            
+            # Generate TTS Audio for the final response
+            tts_filename = f"response_{uuid.uuid4()}.mp3"
+            audio_url = None
+            try:
+                # We need to save this file deeply or serve it. 
+                # For simplicity, we'll assume a static file server or base64.
+                # Base64 is safer for stateless deployment without S3.
+                # Actually, let's just create the file and read it to base64.
+                await voice.synthesize_speech(stage3_result["response"], tts_filename)
+                
+                with open(tts_filename, "rb") as f:
+                    audio_data = f.read()
+                    import base64
+                    audio_base64 = base64.b64encode(audio_data).decode('utf-8')
+                    audio_url = f"data:audio/mp3;base64,{audio_base64}"
+            except Exception as e:
+                print(f"TTS Error: {e}")
+                # Don't fail the whole request if TTS fails
+                pass
+            finally:
+                if os.path.exists(tts_filename):
+                    os.remove(tts_filename)
+
+            # Attach audio to the stage3 complete event
+            yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result, 'audio': audio_url})}\n\n"
+
+            # Title update
+            if title_task:
+                title = await title_task
+                await storage.update_conversation_title(conversation_id, title)
+                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+
+            # Save assistant message
+            await storage.add_assistant_message(
+                conversation_id,
+                stage1_results,
+                stage2_results,
+                stage3_result
+            )
+
+            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+
+        except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
 
     return StreamingResponse(

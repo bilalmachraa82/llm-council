@@ -1,4 +1,178 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import Sidebar from './components/Sidebar';
+import ChatInterface from './components/ChatInterface';
+import LandingPage from './components/LandingPage';
+import { api } from './api';
+import './App.css';
+import VoiceInput from './components/VoiceInput';
+
+function App() {
+  const [inChamber, setInChamber] = useState(false);
+  const [conversations, setConversations] = useState([]);
+  const [currentConversationId, setCurrentConversationId] = useState(null);
+  const [currentConversation, setCurrentConversation] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentTier, setCurrentTier] = useState('pro');
+
+  // Load conversations on mount
+  useEffect(() => {
+    loadConversations();
+  }, []);
+
+  // Load conversation details when selected
+  useEffect(() => {
+    if (currentConversationId) {
+      loadConversation(currentConversationId);
+    }
+  }, [currentConversationId]);
+
+  const loadConversations = async () => {
+    try {
+      const convs = await api.listConversations();
+      setConversations(convs);
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+    }
+  };
+
+  const loadConversation = async (id) => {
+    try {
+      const conv = await api.getConversation(id);
+      setCurrentConversation(conv);
+    } catch (error) {
+      console.error('Failed to load conversation:', error);
+    }
+  };
+
+  const handleNewConversation = async () => {
+    try {
+      const newConv = await api.createConversation();
+      setConversations([newConv, ...conversations]);
+      setCurrentConversationId(newConv.id);
+    } catch (error) {
+      console.error('Failed to create conversation:', error);
+    }
+  };
+
+  const handleSelectConversation = (id) => {
+    setCurrentConversationId(id);
+  };
+
+  const handleVoiceMessage = async (audioBlob) => {
+    if (!currentConversationId || isLoading) return;
+
+    setIsLoading(true);
+
+    try {
+      // Optimistic user message (placeholder until transcription arrives)
+      setCurrentConversation((prev) => ({
+        ...prev,
+        messages: [
+          ...prev.messages,
+          { role: 'user', content: '🎤 Processing voice...' },
+          { role: 'assistant', loading: { stage1: true, stage2: true, stage3: true } },
+        ],
+      }));
+
+      await api.sendAudioMessageStream(currentConversationId, audioBlob, currentTier, (event) => {
+        const eventType = event.type;
+
+        switch (eventType) {
+          case 'transcription':
+            // Update the placeholder with actual text
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              // Find the last user message which is our placeholder
+              // Actually, the backend sends 'transcription' first.
+              // We should find the user message with "🎤 Processing voice..."
+              // But simplified: just replace the last user message content if it matches placeholder
+              // or just rely on the fact that we know it's the second to last message.
+
+              const userMsgIndex = messages.length - 2;
+              if (messages[userMsgIndex] && messages[userMsgIndex].role === 'user') {
+                messages[userMsgIndex].content = event.text;
+              }
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'stage1_start':
+            // Already handled by optimistic update
+            break;
+
+          case 'stage1_complete':
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.stage1 = event.data;
+              lastMsg.loading.stage1 = false;
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'stage2_start':
+            // No state change needed
+            break;
+
+          case 'stage2_complete':
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.stage2 = event.data;
+              lastMsg.metadata = event.metadata;
+              lastMsg.loading.stage2 = false;
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'stage3_start':
+            // No state change needed
+            break;
+
+          case 'stage3_complete':
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.stage3 = event.data;
+              lastMsg.loading.stage3 = false;
+              return { ...prev, messages };
+            });
+
+            // Play audio if available
+            if (event.audio) {
+              const audio = new Audio(event.audio);
+              audio.play().catch(e => console.error("Auto-play blocked:", e));
+            }
+            break;
+
+          case 'title_complete':
+            // Reload conversations to get updated title
+            loadConversations();
+            break;
+
+          case 'complete':
+            // Stream complete, reload conversations list
+            loadConversations();
+            setIsLoading(false);
+            break;
+
+          case 'error':
+            console.error('Stream error:', event.message);
+            setIsLoading(false);
+            break;
+
+          default:
+            console.log('Unknown event type:', eventType);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to send voice message:', error);
+      setIsLoading(false);
+    }
+  };
+
+  // ... rest of component ...
+}
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import LandingPage from './components/LandingPage';
@@ -202,6 +376,7 @@ function App() {
       <ChatInterface
         conversation={currentConversation}
         onSendMessage={handleSendMessage}
+        onVoiceMessage={handleVoiceMessage}
         isLoading={isLoading}
       />
       <div className="watermark">Powered by AiParaTi</div>
