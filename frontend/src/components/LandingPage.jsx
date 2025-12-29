@@ -19,6 +19,15 @@ export default function LandingPage({ onEnter }) {
                 </div>
 
                 <div className="landing-hero">
+                    <div className="hero-visual">
+                        <img
+                            src="/council_hero_glass.png"
+                            alt="The Glass Council"
+                            className="glass-orb"
+                        />
+                        <div className="orb-glow"></div>
+                    </div>
+
                     <h1 className="glitch-text" data-text="THE COUNCIL">THE COUNCIL</h1>
                     <h2 className="subtitle">Democracy of Intelligence</h2>
 
@@ -33,7 +42,6 @@ export default function LandingPage({ onEnter }) {
                         <div className="btn-glow"></div>
                     </button>
                 </div>
-
                 <div className="landing-footer">
                     <div className="stat">
                         <span className="stat-val">3</span>

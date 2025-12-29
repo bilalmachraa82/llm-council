@@ -16,11 +16,22 @@ from .council import run_full_council, generate_conversation_title, stage1_colle
 app = FastAPI(title="LLM Council API")
 
 # CORS origins from environment or defaults
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://frontend-1bcbisizg-bilalmachraa82s-projects.vercel.app",
+    "https://frontend-o55x24oct-bilalmachraa82s-projects.vercel.app",
+    "https://frontend-3eclouj9u-bilalmachraa82s-projects.vercel.app"
+]
+
+# Add any additional origins from environment variable
+env_origins = os.getenv("CORS_ORIGINS", "")
+if env_origins:
+    origins.extend([o.strip() for o in env_origins.split(",") if o.strip()])
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
