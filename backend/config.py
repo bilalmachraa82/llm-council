@@ -12,15 +12,16 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 COUNCIL_MODE = os.getenv("COUNCIL_MODE", "pro").lower()
 
 if COUNCIL_MODE == "budget":
-    # LOW-COST: Open-source & cheap models - Based on OpenRouter Dec 2025
+    # LOW-COST: Best REASONING open-source models (Dec 2025)
+    # Based on GPQA Diamond + AIME benchmarks (NOT coding)
     COUNCIL_MODELS = [
-        "xiaomi/mimo-v2-flash",          # FREE, Claude 4.5 level coding
-        "deepseek/deepseek-v3.2",        # $0.24/M, GPT-5 class reasoning
-        "z-ai/glm-4.5-air",              # FREE, Strong agent performance
-        "deepseek/deepseek-r1-0528",     # FREE, OpenAI o1 level reasoning
-        "alibaba/qwen3-lite",            # Low-cost, Agentic SOTA scaled
+        "z-ai/glm-4.7",                  # 85.7% GPQA, 95.7% AIME - #1 Open-Source Reasoning
+        "deepseek/deepseek-v3.2-thinking", # 82.4% GPQA, 93.1% AIME - GPT-5 class
+        "alibaba/qwen3-235b-a22b-thinking-2507", # 81.1% GPQA, 92.3% AIME
+        "deepseek/deepseek-r1-0528",     # 80% GPQA - OpenAI o1 rival
+        "z-ai/glm-4.6",                  # 81.0% GPQA, 93.9% AIME - Strong backup
     ]
-    CHAIRMAN_MODEL = "deepseek/deepseek-v3.2"  # Best reasoning in low-cost tier
+    CHAIRMAN_MODEL = "z-ai/glm-4.7"  # Best reasoning in open-source (85.7% GPQA)
 elif COUNCIL_MODE == "ultra":
     # ULTRA: Highest intelligence models globally (Dec 2025)
     COUNCIL_MODELS = [
