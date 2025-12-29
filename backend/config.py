@@ -12,16 +12,16 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 COUNCIL_MODE = os.getenv("COUNCIL_MODE", "pro").lower()
 
 if COUNCIL_MODE == "budget":
-    # LOW-COST: Best REASONING open-source models (Dec 2025)
-    # Based on GPQA Diamond + AIME benchmarks (NOT coding)
+    # LOW-COST: Best REASONING models from 5 DIFFERENT companies (Dec 2025)
+    # Diversity of perspective > multiple models from same company
     COUNCIL_MODELS = [
-        "z-ai/glm-4.7",                  # 85.7% GPQA, 95.7% AIME - #1 Open-Source Reasoning
-        "deepseek/deepseek-v3.2-thinking", # 82.4% GPQA, 93.1% AIME - GPT-5 class
-        "alibaba/qwen3-235b-a22b-thinking-2507", # 81.1% GPQA, 92.3% AIME
-        "deepseek/deepseek-r1-0528",     # 80% GPQA - OpenAI o1 rival
-        "z-ai/glm-4.6",                  # 81.0% GPQA, 93.9% AIME - Strong backup
+        "z-ai/glm-4.7",                      # 85.7% GPQA, 95.7% AIME - Zhipu AI (China)
+        "deepseek/deepseek-v3.2-thinking",   # 82.4% GPQA, 93.1% AIME - DeepSeek (China)
+        "alibaba/qwen3-235b-a22b-thinking-2507", # 81.1% GPQA - Alibaba (China)
+        "moonshotai/kimi-k2-thinking",       # Strong reasoning - Moonshot AI (China)
+        "meta-llama/llama-4-maverick",       # 92.7% MMLU-Pro - Meta (USA)
     ]
-    CHAIRMAN_MODEL = "z-ai/glm-4.7"  # Best reasoning in open-source (85.7% GPQA)
+    CHAIRMAN_MODEL = "z-ai/glm-4.7"  # Best reasoning (85.7% GPQA)
 elif COUNCIL_MODE == "ultra":
     # ULTRA: Highest intelligence models globally (Dec 2025)
     COUNCIL_MODELS = [
