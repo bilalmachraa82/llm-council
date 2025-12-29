@@ -12,14 +12,15 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 COUNCIL_MODE = os.getenv("COUNCIL_MODE", "pro").lower()
 
 if COUNCIL_MODE == "budget":
-    # BUDGET: Fast & cheap models
+    # LOW-COST: Open-source & cheap models - Based on OpenRouter Dec 2025
     COUNCIL_MODELS = [
-        "openai/gpt-4o-mini",
-        "google/gemini-2.5-flash-lite",
-        "anthropic/claude-3-haiku",
-        "x-ai/grok-3-fast",
+        "xiaomi/mimo-v2-flash",          # FREE, Claude 4.5 level coding
+        "deepseek/deepseek-v3.2",        # $0.24/M, GPT-5 class reasoning
+        "z-ai/glm-4.5-air",              # FREE, Strong agent performance
+        "deepseek/deepseek-r1-0528",     # FREE, OpenAI o1 level reasoning
+        "alibaba/qwen3-lite",            # Low-cost, Agentic SOTA scaled
     ]
-    CHAIRMAN_MODEL = "google/gemini-2.5-flash"
+    CHAIRMAN_MODEL = "deepseek/deepseek-v3.2"  # Best reasoning in low-cost tier
 elif COUNCIL_MODE == "ultra":
     # ULTRA: Highest intelligence models globally (Dec 2025)
     COUNCIL_MODELS = [
@@ -31,15 +32,15 @@ elif COUNCIL_MODE == "ultra":
     ]
     CHAIRMAN_MODEL = "openai/gpt-5.2-high"
 else:
-    # PRO: Premium models (default)
+    # PRO: Premium models (default) - Based on LM Arena + HLE Dec 2025
     COUNCIL_MODELS = [
-        "openai/gpt-5.2",
-        "google/gemini-3-pro-preview",
-        "anthropic/claude-opus-4.5",
-        "x-ai/grok-4",
-        "meta-llama/llama-4-405b-instruct",
+        "google/gemini-3-pro-preview",   # #1 LM Arena (1492 Elo), #1 HLE (37.5%)
+        "x-ai/grok-4.1-fast",            # #2 LM Arena (1482 Elo), #1 HLE Heavy (44%)
+        "anthropic/claude-opus-4.5",     # #1 WebDev, Premium reasoning
+        "openai/gpt-5.2",                # Strong all-rounder
+        "alibaba/qwen3-max",             # #1 Agentic SOTA (replaces Llama 4)
     ]
-    CHAIRMAN_MODEL = "openai/gpt-5.2"
+    CHAIRMAN_MODEL = "google/gemini-3-pro-preview"  # Best overall benchmark performance
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
