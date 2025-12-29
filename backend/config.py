@@ -17,7 +17,7 @@ if COUNCIL_MODE == "budget":
     COUNCIL_MODELS = [
         "z-ai/glm-4.7",                      # 85.7% GPQA, 95.7% AIME - Zhipu AI (China)
         "deepseek/deepseek-v3.2-thinking",   # 82.4% GPQA, 93.1% AIME - DeepSeek (China)
-        "alibaba/qwen3-235b-a22b-thinking-2507", # 81.1% GPQA - Alibaba (China)
+        "qwen/qwen3-235b-a22b-thinking-2507", # 81.1% GPQA - Alibaba (China)
         "moonshotai/kimi-k2-thinking",       # Strong reasoning - Moonshot AI (China)
         "meta-llama/llama-4-maverick",       # 92.7% MMLU-Pro - Meta (USA)
     ]
@@ -39,7 +39,7 @@ else:
         "x-ai/grok-4.1-fast",            # #2 LM Arena (1482 Elo), #1 HLE Heavy (44%)
         "anthropic/claude-opus-4.5",     # #1 WebDev, Premium reasoning
         "openai/gpt-5.2",                # Strong all-rounder
-        "alibaba/qwen3-max",             # #1 Agentic SOTA (replaces Llama 4)
+        "qwen/qwen3-max",                 # #1 Agentic SOTA (correct ID)
     ]
     CHAIRMAN_MODEL = "google/gemini-3-pro-preview"  # Best overall benchmark performance
 
