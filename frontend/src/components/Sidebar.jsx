@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import TierSelector from './TierSelector';
 import './Sidebar.css';
 
 export default function Sidebar({
@@ -6,11 +7,14 @@ export default function Sidebar({
   currentConversationId,
   onSelectConversation,
   onNewConversation,
+  currentTier,
+  onTierChange,
 }) {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
         <h1>LLM Council</h1>
+        <TierSelector currentTier={currentTier} onTierChange={onTierChange} />
         <button className="new-conversation-btn" onClick={onNewConversation}>
           + New Conversation
         </button>
@@ -23,9 +27,8 @@ export default function Sidebar({
           conversations.map((conv) => (
             <div
               key={conv.id}
-              className={`conversation-item ${
-                conv.id === currentConversationId ? 'active' : ''
-              }`}
+              className={`conversation-item ${conv.id === currentConversationId ? 'active' : ''
+                }`}
               onClick={() => onSelectConversation(conv.id)}
             >
               <div className="conversation-title">
@@ -41,3 +44,4 @@ export default function Sidebar({
     </div>
   );
 }
+

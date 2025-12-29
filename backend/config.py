@@ -49,3 +49,47 @@ OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 # Data directory for conversation storage
 DATA_DIR = "data/conversations"
 
+
+def get_models_for_tier(tier: str) -> tuple:
+    """
+    Get council models and chairman model for a specific tier.
+    
+    Args:
+        tier: "pro", "budget", or "ultra"
+    
+    Returns:
+        Tuple of (council_models, chairman_model)
+    """
+    if tier == "budget":
+        return (
+            [
+                "z-ai/glm-4.7",
+                "deepseek/deepseek-v3.2-thinking",
+                "qwen/qwen3-235b-a22b-thinking-2507",
+                "moonshotai/kimi-k2-thinking",
+                "meta-llama/llama-4-maverick",
+            ],
+            "z-ai/glm-4.7"
+        )
+    elif tier == "ultra":
+        return (
+            [
+                "openai/gpt-5.2-high",
+                "anthropic/claude-opus-4.5-thinking",
+                "google/gemini-3-pro",
+                "alibaba/qwen3-max",
+                "deepseek/deepseek-v3.2-speciale",
+            ],
+            "openai/gpt-5.2-high"
+        )
+    else:  # pro (default)
+        return (
+            [
+                "google/gemini-3-pro-preview",
+                "x-ai/grok-4.1-fast",
+                "anthropic/claude-opus-4.5",
+                "openai/gpt-5.2",
+                "qwen/qwen3-max",
+            ],
+            "google/gemini-3-pro-preview"
+        )

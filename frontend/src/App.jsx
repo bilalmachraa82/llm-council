@@ -11,6 +11,8 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentTier, setCurrentTier] = useState('pro'); // 'pro' or 'budget'
+
 
   // Load conversations on mount
   useEffect(() => {
@@ -92,7 +94,7 @@ function App() {
       }));
 
       // Send message with streaming
-      await api.sendMessageStream(currentConversationId, content, (eventType, event) => {
+      await api.sendMessageStream(currentConversationId, content, currentTier, (eventType, event) => {
         switch (eventType) {
           case 'stage1_start':
             setCurrentConversation((prev) => {
@@ -194,6 +196,8 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        currentTier={currentTier}
+        onTierChange={setCurrentTier}
       />
       <ChatInterface
         conversation={currentConversation}

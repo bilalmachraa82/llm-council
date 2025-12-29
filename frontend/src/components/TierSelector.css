@@ -1,0 +1,122 @@
+.tier-selector {
+    position: relative;
+}
+
+.tier-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-glass);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.tier-toggle:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 15px var(--accent-cyan-dim);
+}
+
+.tier-icon {
+    font-size: 1.1rem;
+}
+
+.tier-name {
+    font-weight: 500;
+}
+
+.tier-chevron {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+
+.tier-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    min-width: 280px;
+    background: var(--bg-glass);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    padding: 8px;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tier-option {
+    width: 100%;
+    padding: 16px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.tier-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-glass);
+}
+
+.tier-option.active {
+    background: var(--accent-cyan-dim);
+    border-color: var(--accent-cyan);
+}
+
+.tier-option-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.tier-option-icon {
+    font-size: 1.2rem;
+}
+
+.tier-option-name {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tier-option-cost {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-gold);
+    background: rgba(255, 214, 10, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.tier-option-description {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}

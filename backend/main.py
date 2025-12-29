@@ -46,6 +46,7 @@ class CreateConversationRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
     content: str
+    tier: str = "pro"  # "pro" or "budget"
 
 
 class ConversationMetadata(BaseModel):
