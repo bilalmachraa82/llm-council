@@ -1,25 +1,55 @@
 .stage3 {
-  background: #f0fff0;
-  border-color: #c8e6c8;
+  background: linear-gradient(135deg, rgba(255, 214, 10, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%);
+  border: 1px solid rgba(255, 214, 10, 0.3);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  box-shadow: 0 0 30px rgba(255, 214, 10, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stage3::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
 }
 
 .final-response {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 6px;
-  border: 1px solid #c8e6c8;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  border: none;
 }
 
 .chairman-label {
-  color: #2d8a2d;
-  font-size: 12px;
-  font-family: monospace;
-  margin-bottom: 12px;
+  color: var(--accent-gold);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  margin-bottom: 16px;
   font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chairman-label::before {
+  content: '👑';
+  font-size: 1rem;
 }
 
 .final-text {
-  color: #333;
-  line-height: 1.7;
-  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-size: 1.05rem;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-left: 2px solid var(--accent-gold);
+  padding-left: 20px;
+  background: linear-gradient(90deg, rgba(255, 214, 10, 0.05) 0%, transparent 100%);
 }
