@@ -34,7 +34,7 @@ export default function LandingPage({ onEnter }) {
                     <p className="description">
                         Harness the cognitive power of the world's most advanced synthetic minds.
                         <br />
-                        <span className="models">GPT-5.2 • Claude Opus • Gemini Pro • Grok 4</span>
+                        <span className="models">GPT-5.2 • Claude Opus • Gemini 3.0 • Grok 4 • Llama 4</span>
                     </p>
 
                     <button className="enter-btn" onClick={onEnter}>
