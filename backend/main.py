@@ -21,10 +21,10 @@ app = FastAPI(title="LLM Council API")
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://frontend-1bcbisizg-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-o55x24oct-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-3eclouj9u-bilalmachraa82s-projects.vercel.app",
-    "*"  # Temporary: Allow all for debugging/initial rollout
+    "https://frontend-kf7x80p4n-bilalmachraa82s-projects.vercel.app",
+    "https://frontend-dns3m75ca-bilalmachraa82s-projects.vercel.app",
+    "https://frontend-hwtzh4dl7-bilalmachraa82s-projects.vercel.app",
+    "https://llm-council-frontend.vercel.app",
 ]
 
 # Add any additional origins from environment variable
