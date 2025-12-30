@@ -25,6 +25,7 @@ origins = [
     "https://frontend-dns3m75ca-bilalmachraa82s-projects.vercel.app",
     "https://frontend-hwtzh4dl7-bilalmachraa82s-projects.vercel.app",
     "https://llm-council-frontend.vercel.app",
+    "https://llm-council.aiparati.pt",
 ]
 
 # Add any additional origins from environment variable
