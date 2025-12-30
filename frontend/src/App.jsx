@@ -171,6 +171,116 @@ function App() {
     }
   };
 
-  // ... rest of component ...
+  const handleSendMessage = async (content) => {
+    if (!currentConversationId || isLoading) return;
+
+    setIsLoading(true);
+
+    // Optimistic update: add user message and loading assistant message
+    setCurrentConversation((prev) => ({
+      ...prev,
+      messages: [
+        ...prev.messages,
+        { role: 'user', content },
+        { role: 'assistant', loading: { stage1: true, stage2: true, stage3: true } },
+      ],
+    }));
+
+    try {
+      await api.sendMessageStream(currentConversationId, content, currentTier, (event) => {
+        const eventType = event.type;
+
+        switch (eventType) {
+          case 'stage1_start':
+            // Already handled by optimistic update
+            break;
+
+          case 'stage1_complete':
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.stage1 = event.data;
+              lastMsg.loading.stage1 = false;
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'stage2_start':
+            break;
+
+          case 'stage2_complete':
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.stage2 = event.data;
+              lastMsg.metadata = event.metadata;
+              lastMsg.loading.stage2 = false;
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'stage3_start':
+            break;
+
+          case 'stage3_complete':
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              lastMsg.stage3 = event.data;
+              lastMsg.loading.stage3 = false;
+              return { ...prev, messages };
+            });
+            break;
+
+          case 'title_complete':
+            loadConversations();
+            break;
+
+          case 'complete':
+            loadConversations();
+            setIsLoading(false);
+            break;
+
+          case 'error':
+            console.error('Stream error:', event.message);
+            setIsLoading(false);
+            break;
+
+          default:
+            console.log('Unknown event type:', eventType);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      setIsLoading(false);
+    }
+  };
+
+  // If not in chamber, show landing page
+  if (!inChamber) {
+    return <LandingPage onEnter={() => setInChamber(true)} />;
+  }
+
+  // Main app interface
+  return (
+    <div className="app">
+      <Sidebar
+        conversations={conversations}
+        currentId={currentConversationId}
+        onSelect={handleSelectConversation}
+        onNew={handleNewConversation}
+        currentTier={currentTier}
+        onTierChange={setCurrentTier}
+      />
+      <main className="main-content">
+        <ChatInterface
+          conversation={currentConversation}
+          onSendMessage={handleSendMessage}
+          onVoiceMessage={handleVoiceMessage}
+          isLoading={isLoading}
+        />
+      </main>
+    </div>
+  );
 }
 export default App;

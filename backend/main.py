@@ -23,7 +23,8 @@ origins = [
     "http://localhost:3000",
     "https://frontend-1bcbisizg-bilalmachraa82s-projects.vercel.app",
     "https://frontend-o55x24oct-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-3eclouj9u-bilalmachraa82s-projects.vercel.app"
+    "https://frontend-3eclouj9u-bilalmachraa82s-projects.vercel.app",
+    "*"  # Temporary: Allow all for debugging/initial rollout
 ]
 
 # Add any additional origins from environment variable

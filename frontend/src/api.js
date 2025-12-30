@@ -149,7 +149,7 @@ export const api = {
           const data = line.slice(6);
           try {
             const event = JSON.parse(data);
-            onEvent(event.type, event);
+            onEvent(event);
           } catch (e) {
             console.error('Failed to parse SSE event:', e);
           }

@@ -67,7 +67,7 @@ async def get_conversation(conversation_id: str) -> Optional[Dict[str, Any]]:
     
     conversation = await db.conversation.find_unique(
         where={"id": conversation_id},
-        include={"messages": {"order_by": {"createdAt": "asc"}}}
+        include={"messages": {"order": {"createdAt": "asc"}}}
     )
     
     if conversation is None:
@@ -107,7 +107,7 @@ async def list_conversations() -> List[Dict[str, Any]]:
     db = await get_db()
     
     conversations = await db.conversation.find_many(
-        order_by={"createdAt": "desc"},
+        order={"createdAt": "desc"},
         include={"messages": True}
     )
     

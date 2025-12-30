@@ -3,11 +3,13 @@ import ReactMarkdown from 'react-markdown';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
+import VoiceInput from './VoiceInput';
 import './ChatInterface.css';
 
 export default function ChatInterface({
   conversation,
   onSendMessage,
+  onVoiceMessage,
   isLoading,
 }) {
   const [input, setInput] = useState('');
