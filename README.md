@@ -92,5 +92,11 @@ Dynamic configuration in `backend/config.py`.
 *   **Backend**: Railway / Render (Python FastAPI).
 *   **Database**: Neon (PostgreSQL).
 
+
+## 📚 Documentation
+
+*   [API Reference](backend/API.md): Detailed endpoint documentation.
+*   [Architecture Overview](#-architecture)
+
 ## 📄 License
 MIT
