@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import TierSelector from './TierSelector';
+import AuthModal from './AuthModal';
+import { useAuth } from '../AuthContext';
 import './Sidebar.css';
 
 export default function Sidebar({
@@ -10,6 +12,9 @@ export default function Sidebar({
   currentTier,
   onTierChange,
 }) {
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { user, isAuthenticated, signOut } = useAuth();
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -41,7 +46,22 @@ export default function Sidebar({
           ))
         )}
       </div>
+
+      {/* Auth Section */}
+      <div className="sidebar-footer">
+        {isAuthenticated ? (
+          <div className="user-info">
+            <span className="user-email">{user?.email}</span>
+            <button className="logout-btn" onClick={signOut}>Sign Out</button>
+          </div>
+        ) : (
+          <button className="login-btn" onClick={() => setShowAuthModal(true)}>
+            Sign In / Sign Up
+          </button>
+        )}
+      </div>
+
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }
-
