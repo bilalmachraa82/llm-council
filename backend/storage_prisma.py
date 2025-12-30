@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Optional
 from prisma import Prisma
-from prisma.models import Conversation, Message
+from prisma.models import Conversation, Message, User
 import json
 
 # Global Prisma client instance
@@ -183,3 +183,106 @@ async def update_conversation_title(conversation_id: str, title: str):
         where={"id": conversation_id},
         data={"title": title}
     )
+
+
+# ============== User Management ==============
+
+async def create_user(email: str, password_hash: str) -> Dict[str, Any]:
+    """
+    Create a new user.
+    
+    Args:
+        email: User's email
+        password_hash: Hashed password
+    
+    Returns:
+        New user dict
+    """
+    db = await get_db()
+    
+    user = await db.user.create(
+        data={
+            "email": email,
+            "passwordHash": password_hash,
+            "credits": 10,
+            "plan": "free"
+        }
+    )
+    
+    return {
+        "id": user.id,
+        "email": user.email,
+        "credits": user.credits,
+        "plan": user.plan,
+        "created_at": user.createdAt.isoformat(),
+    }
+
+
+async def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    """
+    Get a user by email.
+    
+    Args:
+        email: User's email
+    
+    Returns:
+        User dict or None if not found
+    """
+    db = await get_db()
+    
+    user = await db.user.find_unique(where={"email": email})
+    
+    if user is None:
+        return None
+    
+    return {
+        "id": user.id,
+        "email": user.email,
+        "password_hash": user.passwordHash,
+        "credits": user.credits,
+        "plan": user.plan,
+        "created_at": user.createdAt.isoformat(),
+    }
+
+
+async def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Get a user by ID.
+    
+    Args:
+        user_id: User's ID
+    
+    Returns:
+        User dict or None if not found
+    """
+    db = await get_db()
+    
+    user = await db.user.find_unique(where={"id": user_id})
+    
+    if user is None:
+        return None
+    
+    return {
+        "id": user.id,
+        "email": user.email,
+        "credits": user.credits,
+        "plan": user.plan,
+        "created_at": user.createdAt.isoformat(),
+    }
+
+
+async def update_user_credits(user_id: str, credits: int) -> None:
+    """
+    Update a user's credit balance.
+    
+    Args:
+        user_id: User's ID
+        credits: New credit balance
+    """
+    db = await get_db()
+    
+    await db.user.update(
+        where={"id": user_id},
+        data={"credits": credits}
+    )
+

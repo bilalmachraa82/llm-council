@@ -2,7 +2,7 @@
 
 import os
 import shutil
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -13,6 +13,7 @@ import asyncio
 
 from . import storage_prisma as storage
 from . import voice
+from . import auth
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
 
 app = FastAPI(title="LLM Council API")
@@ -68,7 +69,86 @@ class Conversation(BaseModel):
     id: str
     created_at: str
     title: str
-    messages: List[Dict[str, Any]]
+    messages: List[Dict, Any]
+
+
+# Auth request/response models
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class AuthResponse(BaseModel):
+    token: str
+    user: Dict[str, Any]
+
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    credits: int
+    plan: str
+
+
+@app.post("/auth/register", response_model=AuthResponse)
+async def register(request: RegisterRequest):
+    """Register a new user."""
+    # Check if user already exists
+    existing = await storage.get_user_by_email(request.email)
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Hash password and create user
+    password_hash = auth.hash_password(request.password)
+    user = await storage.create_user(request.email, password_hash)
+    
+    # Generate token
+    token = auth.create_access_token(user["id"], user["email"])
+    
+    return {"token": token, "user": user}
+
+
+@app.post("/auth/login", response_model=AuthResponse)
+async def login(request: LoginRequest):
+    """Login an existing user."""
+    user = await storage.get_user_by_email(request.email)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    if not auth.verify_password(request.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Generate token
+    token = auth.create_access_token(user["id"], user["email"])
+    
+    # Remove password_hash from response
+    user_response = {k: v for k, v in user.items() if k != "password_hash"}
+    
+    return {"token": token, "user": user_response}
+
+
+@app.get("/auth/me", response_model=UserResponse)
+async def get_current_user(authorization: Optional[str] = Header(None)):
+    """Get the current authenticated user."""
+    user_id = await auth.get_current_user_id(authorization)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    user = await storage.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "id": user["id"],
+        "email": user["email"],
+        "credits": user["credits"],
+        "plan": user["plan"],
+    }
 
 
 @app.get("/")
