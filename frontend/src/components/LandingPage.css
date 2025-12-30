@@ -3,10 +3,12 @@
     inset: 0;
     z-index: 9999;
     background: var(--bg-void);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 /* 3D Grid Effect */

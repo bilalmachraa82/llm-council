@@ -9,7 +9,7 @@ export default function LandingPage({ onEnter }) {
     }, []);
 
     return (
-        <div className={`landing-container ${mounted ? 'active' : ''}`}>
+        <div className="landing-container active">
             <div className="grid-background"></div>
 
             <div className="landing-content">
