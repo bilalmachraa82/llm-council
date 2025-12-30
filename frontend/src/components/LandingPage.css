@@ -202,3 +202,145 @@
     padding-top: 2rem;
     border-top: 1px solid var(--border-glass);
 }
+
+/* New Tagline */
+.tagline {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-weight: 300;
+}
+
+/* How It Works Section */
+.how-it-works {
+    margin-top: 5rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border-glass);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 2rem;
+    font-family: var(--font-mono);
+}
+
+.stages-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.stage-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 200px;
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.stage-card:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 20px var(--accent-cyan-dim);
+    transform: translateY(-4px);
+}
+
+.stage-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    margin-bottom: 0.5rem;
+}
+
+.stage-card h4 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.stage-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.stage-arrow {
+    font-size: 1.5rem;
+    color: var(--accent-cyan);
+    opacity: 0.5;
+}
+
+/* Why Council Section */
+.why-council {
+    margin-top: 3rem;
+}
+
+.benefits-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.benefit {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.benefit-icon {
+    color: var(--accent-cyan);
+    font-weight: bold;
+}
+
+/* Models Showcase */
+.models-showcase {
+    margin-top: 2rem;
+}
+
+.models-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.models-list {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--accent-pink);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stages-grid {
+        flex-direction: column;
+    }
+
+    .stage-arrow {
+        transform: rotate(90deg);
+    }
+
+    .landing-hero h1 {
+        font-size: 3rem;
+    }
+
+    .hero-visual {
+        width: 200px;
+        height: 200px;
+    }
+}

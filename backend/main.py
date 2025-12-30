@@ -1,5 +1,6 @@
 """FastAPI backend for LLM Council."""
 
+import os
 import shutil
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
