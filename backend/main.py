@@ -22,13 +22,6 @@ app = FastAPI(title="LLM Council API")
 base_origins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://frontend-kf7x80p4n-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-dns3m75ca-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-hwtzh4dl7-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-1vyock0ig-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-ka8245ld2-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-bvqxzzgqe-bilalmachraa82s-projects.vercel.app",
-    "https://frontend-otnfmsje1-bilalmachraa82s-projects.vercel.app",
     "https://llm-council-frontend.vercel.app",
     "https://llm-council.aiparati.pt",
 ]
@@ -40,9 +33,14 @@ if env_origins:
 # Use a set to deduplicate, then convert back to list
 origins = list(set(base_origins))
 
+# Regex pattern to match all Vercel preview deployments
+import re
+vercel_pattern = r"https://frontend-[a-z0-9]+-bilalmachraa82s-projects\.vercel\.app"
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=vercel_pattern,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
