@@ -67,15 +67,18 @@ async def get_conversation(conversation_id: str) -> Optional[Dict[str, Any]]:
     
     conversation = await db.conversation.find_unique(
         where={"id": conversation_id},
-        include={"messages": {"order_by": {"created_at": "asc"}}}
+        include={"messages": True}
     )
     
     if conversation is None:
         return None
     
+    # Sort messages by createdAt in Python (Prisma Python include doesn't support ordering)
+    sorted_messages = sorted(conversation.messages, key=lambda m: m.createdAt)
+    
     # Convert messages to dict format
     messages = []
-    for msg in conversation.messages:
+    for msg in sorted_messages:
         if msg.role == "user":
             messages.append({
                 "role": "user",
