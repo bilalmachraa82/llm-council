@@ -67,7 +67,7 @@ async def get_conversation(conversation_id: str) -> Optional[Dict[str, Any]]:
     
     conversation = await db.conversation.find_unique(
         where={"id": conversation_id},
-        include={"messages": {"order": {"createdAt": "asc"}}}
+        include={"messages": {"order_by": {"created_at": "asc"}}}
     )
     
     if conversation is None:
