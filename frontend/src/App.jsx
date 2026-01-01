@@ -49,6 +49,7 @@ function App() {
       const newConv = await api.createConversation();
       setConversations([newConv, ...conversations]);
       setCurrentConversationId(newConv.id);
+      setCurrentConversation(newConv); // Set directly to render chat interface immediately
     } catch (error) {
       console.error('Failed to create conversation:', error);
     }
