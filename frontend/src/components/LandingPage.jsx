@@ -61,15 +61,16 @@ export default function LandingPage({ onEnter }) {
                             <div className="tier-header">
                                 <span className="tier-badge">Budget</span>
                                 <h4>Standard Council</h4>
-                                <div className="tier-price">Low Cost</div>
+                                <div className="tier-price">Low Cost • Reasoning Focus</div>
                             </div>
                             <div className="tier-models">
                                 <p><strong>Powered by:</strong></p>
                                 <ul>
-                                    <li>GPT-4o Mini</li>
-                                    <li>Gemini 2.5 Flash-Lite</li>
-                                    <li>Claude 3 Haiku</li>
-                                    <li>Grok 3 Fast</li>
+                                    <li>GLM 4.7 <span className="model-origin">🇨🇳</span></li>
+                                    <li>DeepSeek V3.2 Thinking <span className="model-origin">🇨🇳</span></li>
+                                    <li>Qwen3 235B Thinking <span className="model-origin">🇨🇳</span></li>
+                                    <li>Kimi K2 Thinking <span className="model-origin">🇨🇳</span></li>
+                                    <li>Llama 4 Maverick <span className="model-origin">🇺🇸</span></li>
                                 </ul>
                             </div>
                         </div>
@@ -78,16 +79,16 @@ export default function LandingPage({ onEnter }) {
                             <div className="tier-header">
                                 <span className="tier-badge">Premium</span>
                                 <h4>Elite Council</h4>
-                                <div className="tier-price">Best Quality</div>
+                                <div className="tier-price">Best Quality • Top Benchmarks</div>
                             </div>
                             <div className="tier-models">
                                 <p><strong>Powered by:</strong></p>
                                 <ul>
-                                    <li>Gemini 3 Pro</li>
-                                    <li>Claude Opus 4.5</li>
-                                    <li>GPT-5.2</li>
-                                    <li>Qwen 3 Max</li>
-                                    <li>Grok 4.1</li>
+                                    <li>Gemini 3 Pro Preview <span className="model-origin">🇺🇸</span></li>
+                                    <li>Grok 4.1 Fast <span className="model-origin">🇺🇸</span></li>
+                                    <li>Claude Opus 4.5 <span className="model-origin">🇺🇸</span></li>
+                                    <li>GPT-5.2 <span className="model-origin">🇺🇸</span></li>
+                                    <li>Qwen3 Max <span className="model-origin">🇨🇳</span></li>
                                 </ul>
                             </div>
                         </div>
