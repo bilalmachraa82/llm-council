@@ -91,7 +91,7 @@ export default function LandingPage({ onEnter }) {
                 {/* MODELS SHOWCASE */}
                 <div className="models-showcase">
                     <p className="models-label">Powered by</p>
-                    <p className="models-list">Gemini 2.5 • Claude 4 • GPT-4o • Llama 3.3 • DeepSeek V3</p>
+                    <p className="models-list">Gemini 3 Pro • Claude Opus 4.5 • GPT-5.2 • Qwen 3 Max • Grok 4.1</p>
                 </div>
 
                 <div className="landing-footer">
