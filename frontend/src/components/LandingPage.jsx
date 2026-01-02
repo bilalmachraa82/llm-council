@@ -44,23 +44,52 @@ export default function LandingPage({ onEnter }) {
                 {/* HOW IT WORKS SECTION */}
                 <div className="how-it-works">
                     <h3 className="section-title">How It Works</h3>
-                    <div className="stages-grid">
-                        <div className="stage-card">
-                            <div className="stage-number">1</div>
-                            <h4>Response Collection</h4>
-                            <p>5 top-tier AI models answer your question in parallel. Each model brings unique reasoning and perspective.</p>
+                    <div className="infographic_container">
+                        <img
+                            src="/council_infographic.png"
+                            alt="The Council Process: User Query -> 5 Models -> Analysis -> Chairman Synthesis -> Optimal Answer"
+                            className="council-infographic"
+                        />
+                    </div>
+                </div>
+
+                {/* TIER COMPARISON SECTION */}
+                <div className="tier-comparison-section">
+                    <h3 className="section-title">Choose Your Council</h3>
+                    <div className="tier-grid">
+                        <div className="tier-card budget">
+                            <div className="tier-header">
+                                <span className="tier-badge">Budget</span>
+                                <h4>Standard Council</h4>
+                                <div className="tier-price">Low Cost</div>
+                            </div>
+                            <div className="tier-models">
+                                <p><strong>Powered by:</strong></p>
+                                <ul>
+                                    <li>GPT-4o Mini</li>
+                                    <li>Gemini 2.5 Flash-Lite</li>
+                                    <li>Claude 3 Haiku</li>
+                                    <li>Grok 3 Fast</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div className="stage-arrow">→</div>
-                        <div className="stage-card">
-                            <div className="stage-number">2</div>
-                            <h4>Blind Ranking</h4>
-                            <p>Models rank each other's responses anonymously. No bias, no favoritism—pure quality assessment.</p>
-                        </div>
-                        <div className="stage-arrow">→</div>
-                        <div className="stage-card">
-                            <div className="stage-number">3</div>
-                            <h4>Chairman Synthesis</h4>
-                            <p>A designated "Chairman" model synthesizes the best insights into one coherent, optimal answer.</p>
+
+                        <div className="tier-card premium">
+                            <div className="tier-header">
+                                <span className="tier-badge">Premium</span>
+                                <h4>Elite Council</h4>
+                                <div className="tier-price">Best Quality</div>
+                            </div>
+                            <div className="tier-models">
+                                <p><strong>Powered by:</strong></p>
+                                <ul>
+                                    <li>Gemini 3 Pro</li>
+                                    <li>Claude Opus 4.5</li>
+                                    <li>GPT-5.2</li>
+                                    <li>Qwen 3 Max</li>
+                                    <li>Grok 4.1</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -91,7 +120,7 @@ export default function LandingPage({ onEnter }) {
                 {/* MODELS SHOWCASE */}
                 <div className="models-showcase">
                     <p className="models-label">Powered by</p>
-                    <p className="models-list">Gemini 3 Pro • Claude Opus 4.5 • GPT-5.2 • Qwen 3 Max • Grok 4.1</p>
+                    <p className="models-brand">AiParaTi</p>
                 </div>
 
                 <div className="landing-footer">
