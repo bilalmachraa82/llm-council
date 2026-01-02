@@ -267,9 +267,9 @@ function App() {
     <div className="app">
       <Sidebar
         conversations={conversations}
-        currentId={currentConversationId}
-        onSelect={handleSelectConversation}
-        onNew={handleNewConversation}
+        currentConversationId={currentConversationId}
+        onSelectConversation={handleSelectConversation}
+        onNewConversation={handleNewConversation}
         currentTier={currentTier}
         onTierChange={setCurrentTier}
       />
