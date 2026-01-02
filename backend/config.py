@@ -12,36 +12,37 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 COUNCIL_MODE = os.getenv("COUNCIL_MODE", "pro").lower()
 
 if COUNCIL_MODE == "budget":
-    # LOW-COST: Best REASONING models from 5 DIFFERENT companies (Dec 2025)
-    # Diversity of perspective > multiple models from same company
+    # BUDGET: Smartest LOW-COST models (Dec 2025)
+    # Best intelligence per dollar spent
     COUNCIL_MODELS = [
-        "z-ai/glm-4.7",                      # 85.7% GPQA, 95.7% AIME - Zhipu AI (China)
-        "deepseek/deepseek-v3.2-thinking",   # 82.4% GPQA, 93.1% AIME - DeepSeek (China)
-        "qwen/qwen3-235b-a22b-thinking-2507", # 81.1% GPQA - Alibaba (China)
-        "moonshotai/kimi-k2-thinking",       # Strong reasoning - Moonshot AI (China)
-        "meta-llama/llama-4-maverick",       # 92.7% MMLU-Pro - Meta (USA)
+        "deepseek/deepseek-v3.2-thinking",   # $0.28/M - Best coding value
+        "google/gemini-2.5-flash",            # ~$0.10/M - 1M context, fast
+        "meta-llama/llama-4-maverick:free",   # FREE - 400B params, strong benchmarks
+        "anthropic/claude-3.5-haiku",         # $0.80/M - Great value reasoning
+        "openai/gpt-5-nano",                  # $0.05/M - Cheapest GPT-5 variant
     ]
-    CHAIRMAN_MODEL = "z-ai/glm-4.7"  # Best reasoning (85.7% GPQA)
+    CHAIRMAN_MODEL = "deepseek/deepseek-v3.2-thinking"  # Best value reasoning
 elif COUNCIL_MODE == "ultra":
     # ULTRA: Highest intelligence models globally (Dec 2025)
     COUNCIL_MODELS = [
-        "openai/gpt-5.2-high",           # #1 OpenAI reasoning
-        "anthropic/claude-opus-4.5-thinking", # #1 LM Arena WebDev
-        "google/gemini-3-pro",           # SOTA Multimodal
-        "alibaba/qwen3-max",             # #1 Chinese Model / Agentic SOTA
-        "deepseek/deepseek-v3.2-speciale",# SOTA Open-source reasoning
+        "openai/gpt-5.2-high",           # #1 OpenAI - 92.4% GPQA
+        "anthropic/claude-opus-4.5-thinking", # #1 WebDev Arena (1519)
+        "google/gemini-3-pro",           # #1 LM Arena (1492), 45.8% HLE
+        "x-ai/grok-4.1-thinking",        # 100% AIME, strong reasoning
+        "z-ai/glm-4.7",                  # 85.7% GPQA - top Chinese model
     ]
     CHAIRMAN_MODEL = "openai/gpt-5.2-high"
 else:
-    # PRO: Premium models (default) - Based on LM Arena + HLE Dec 2025
+    # PRO (Premium): THE 5 SMARTEST AI MODELS IN THE WORLD (Dec 2025)
+    # Pure intelligence ranking based on benchmarks
     COUNCIL_MODELS = [
-        "google/gemini-3-pro-preview",   # #1 LM Arena (1492 Elo), #1 HLE (37.5%)
-        "x-ai/grok-4.1-fast",            # #2 LM Arena (1482 Elo), #1 HLE Heavy (44%)
-        "anthropic/claude-opus-4.5",     # #1 WebDev, Premium reasoning
-        "openai/gpt-5.2",                # Strong all-rounder
-        "qwen/qwen3-max",                 # #1 Agentic SOTA (correct ID)
+        "openai/gpt-5.2",                # #1 GPQA (92.4%), 100% AIME
+        "google/gemini-3-pro-preview",   # #1 LM Arena (1492), #1 HLE (45.8%)
+        "anthropic/claude-opus-4.5-thinking", # #1 WebDev Arena (1519)
+        "x-ai/grok-4.1-thinking",        # #3 LM Arena (1477), 100% AIME Heavy
+        "z-ai/glm-4.7",                  # 85.7% GPQA - best Chinese reasoning
     ]
-    CHAIRMAN_MODEL = "google/gemini-3-pro-preview"  # Best overall benchmark performance
+    CHAIRMAN_MODEL = "openai/gpt-5.2"  # Highest GPQA score
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -63,13 +64,13 @@ def get_models_for_tier(tier: str) -> tuple:
     if tier == "budget":
         return (
             [
-                "z-ai/glm-4.7",
                 "deepseek/deepseek-v3.2-thinking",
-                "qwen/qwen3-235b-a22b-thinking-2507",
-                "moonshotai/kimi-k2-thinking",
-                "meta-llama/llama-4-maverick",
+                "google/gemini-2.5-flash",
+                "meta-llama/llama-4-maverick:free",
+                "anthropic/claude-3.5-haiku",
+                "openai/gpt-5-nano",
             ],
-            "z-ai/glm-4.7"
+            "deepseek/deepseek-v3.2-thinking"
         )
     elif tier == "ultra":
         return (
@@ -77,19 +78,19 @@ def get_models_for_tier(tier: str) -> tuple:
                 "openai/gpt-5.2-high",
                 "anthropic/claude-opus-4.5-thinking",
                 "google/gemini-3-pro",
-                "alibaba/qwen3-max",
-                "deepseek/deepseek-v3.2-speciale",
+                "x-ai/grok-4.1-thinking",
+                "z-ai/glm-4.7",
             ],
             "openai/gpt-5.2-high"
         )
-    else:  # pro (default)
+    else:  # pro (default) - THE 5 SMARTEST
         return (
             [
-                "google/gemini-3-pro-preview",
-                "x-ai/grok-4.1-fast",
-                "anthropic/claude-opus-4.5",
                 "openai/gpt-5.2",
-                "qwen/qwen3-max",
+                "google/gemini-3-pro-preview",
+                "anthropic/claude-opus-4.5-thinking",
+                "x-ai/grok-4.1-thinking",
+                "z-ai/glm-4.7",
             ],
-            "google/gemini-3-pro-preview"
+            "openai/gpt-5.2"
         )

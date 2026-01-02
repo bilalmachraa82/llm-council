@@ -60,17 +60,17 @@ export default function LandingPage({ onEnter }) {
                         <div className="tier-card budget">
                             <div className="tier-header">
                                 <span className="tier-badge">Budget</span>
-                                <h4>Standard Council</h4>
-                                <div className="tier-price">Low Cost • Reasoning Focus</div>
+                                <h4>Smart & Affordable</h4>
+                                <div className="tier-price">Best Intelligence per $</div>
                             </div>
                             <div className="tier-models">
                                 <p><strong>Powered by:</strong></p>
                                 <ul>
-                                    <li>GLM 4.7 <span className="model-origin">🇨🇳</span></li>
                                     <li>DeepSeek V3.2 Thinking <span className="model-origin">🇨🇳</span></li>
-                                    <li>Qwen3 235B Thinking <span className="model-origin">🇨🇳</span></li>
-                                    <li>Kimi K2 Thinking <span className="model-origin">🇨🇳</span></li>
+                                    <li>Gemini 2.5 Flash <span className="model-origin">🇺🇸</span></li>
                                     <li>Llama 4 Maverick <span className="model-origin">🇺🇸</span></li>
+                                    <li>Claude 3.5 Haiku <span className="model-origin">🇺🇸</span></li>
+                                    <li>GPT-5 Nano <span className="model-origin">🇺🇸</span></li>
                                 </ul>
                             </div>
                         </div>
@@ -78,17 +78,17 @@ export default function LandingPage({ onEnter }) {
                         <div className="tier-card premium">
                             <div className="tier-header">
                                 <span className="tier-badge">Premium</span>
-                                <h4>Elite Council</h4>
-                                <div className="tier-price">Best Quality • Top Benchmarks</div>
+                                <h4>5 Smartest AIs on Earth</h4>
+                                <div className="tier-price">Maximum Intelligence</div>
                             </div>
                             <div className="tier-models">
                                 <p><strong>Powered by:</strong></p>
                                 <ul>
-                                    <li>Gemini 3 Pro Preview <span className="model-origin">🇺🇸</span></li>
-                                    <li>Grok 4.1 Fast <span className="model-origin">🇺🇸</span></li>
-                                    <li>Claude Opus 4.5 <span className="model-origin">🇺🇸</span></li>
-                                    <li>GPT-5.2 <span className="model-origin">🇺🇸</span></li>
-                                    <li>Qwen3 Max <span className="model-origin">🇨🇳</span></li>
+                                    <li>GPT-5.2 <span className="model-score">#1 GPQA 92.4%</span></li>
+                                    <li>Gemini 3 Pro <span className="model-score">#1 Arena</span></li>
+                                    <li>Claude Opus 4.5 <span className="model-score">#1 WebDev</span></li>
+                                    <li>Grok 4.1 Thinking <span className="model-score">100% AIME</span></li>
+                                    <li>GLM 4.7 <span className="model-score">85.7% GPQA</span></li>
                                 </ul>
                             </div>
                         </div>
