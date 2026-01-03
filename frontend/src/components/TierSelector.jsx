@@ -19,6 +19,13 @@ export default function TierSelector({ currentTier, onTierChange }) {
             description: 'GLM-4.7 • DeepSeek V3.2 • Qwen3 • Kimi K2 • Llama 4',
             cost: '~$2/query',
         },
+        {
+            id: 'uncensored',
+            name: 'Uncensored',
+            icon: '🏴‍☠️',
+            description: 'Hermes 3 • DeepSeek V3 • Dolphin Mistral • DAN Mode',
+            cost: '~$45/query',
+        },
     ];
 
     const activeTier = tiers.find((t) => t.id === currentTier) || tiers[0];

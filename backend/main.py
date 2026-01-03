@@ -15,6 +15,7 @@ from . import storage_prisma as storage
 from . import voice
 from . import auth
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
+from .images import generate_image
 
 app = FastAPI(title="LLM Council API")
 
@@ -55,7 +56,13 @@ class CreateConversationRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
     content: str
-    tier: str = "pro"  # "pro" or "budget"
+    tier: str = "pro"  # "pro", "budget", "ultra", or "uncensored"
+    dan_mode: Optional[str] = None  # Specific DAN persona key (e.g., "classic", "machiavelli")
+
+
+class ImageGenerationRequest(BaseModel):
+    """Request to generate an image."""
+    prompt: str
 
 
 class ConversationMetadata(BaseModel):
@@ -411,6 +418,15 @@ async def send_audio_message(
             "Connection": "keep-alive",
         }
     )
+
+
+@app.post("/api/generate-image")
+async def api_generate_image(request: ImageGenerationRequest):
+    """Generate an image using Flux via OpenRouter."""
+    result = await generate_image(request.prompt)
+    if not result:
+        raise HTTPException(status_code=500, detail="Image generation failed")
+    return result
 
 
 if __name__ == "__main__":

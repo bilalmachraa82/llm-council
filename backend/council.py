@@ -1,23 +1,43 @@
 """3-stage LLM Council orchestration."""
 
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from .openrouter import query_models_parallel, query_model
-from .config import COUNCIL_MODELS, CHAIRMAN_MODEL, get_models_for_tier
+from .config import (
+    COUNCIL_MODELS, CHAIRMAN_MODEL, get_models_for_tier,
+    UNCENSORED_SYSTEM_PROMPT, DAN_PROMPTS, UNCENSORED_CHAIRMAN_PROMPT
+)
 
 
-async def stage1_collect_responses(user_query: str, tier: str = "pro") -> List[Dict[str, Any]]:
+async def stage1_collect_responses(
+    user_query: str,
+    tier: str = "pro",
+    dan_mode: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
     Stage 1: Collect individual responses from all council models.
 
     Args:
         user_query: The user's question
-        tier: "pro", "budget", or "ultra"
+        tier: "pro", "budget", "ultra", or "uncensored"
+        dan_mode: Specific DAN persona key (only for uncensored tier)
 
     Returns:
         List of dicts with 'model' and 'response' keys
     """
     council_models, _ = get_models_for_tier(tier)
-    messages = [{"role": "user", "content": user_query}]
+    messages = []
+
+    # Inject System Prompt for Uncensored Mode
+    if tier == "uncensored":
+        system_content = UNCENSORED_SYSTEM_PROMPT
+        
+        # Append specific DAN persona instruction if selected
+        if dan_mode and dan_mode in DAN_PROMPTS:
+            system_content += f"\n\nSPECIFIC PERSONA INSTRUCTIONS:\n{DAN_PROMPTS[dan_mode]}"
+        
+        messages.append({"role": "system", "content": system_content})
+
+    messages.append({"role": "user", "content": user_query})
 
     # Query all models in parallel
     responses = await query_models_parallel(council_models, messages)
@@ -131,7 +151,7 @@ async def stage3_synthesize_final(
         user_query: The original user query
         stage1_results: Individual model responses from Stage 1
         stage2_results: Rankings from Stage 2
-        tier: "pro", "budget", or "ultra"
+        tier: "pro", "budget", "ultra", or "uncensored"
 
     Returns:
         Dict with 'model' and 'response' keys
@@ -149,7 +169,13 @@ async def stage3_synthesize_final(
         for result in stage2_results
     ])
 
-    chairman_prompt = f"""You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
+    # Select appropriate system prompt for Chairman
+    if tier == "uncensored":
+        system_prompt = UNCENSORED_CHAIRMAN_PROMPT
+    else:
+        system_prompt = "You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses."
+
+    chairman_prompt = f"""{system_prompt}
 
 Original Question: {user_query}
 

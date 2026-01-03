@@ -76,20 +76,50 @@
   order: 2;
 }
 
-.user-message .message-content {
-  background: var(--bg-panel);
-  padding: 20px;
-  border-left: 2px solid var(--accent-gold);
-  color: var(--text-primary);
+/* Message Content Base */
+.message-content {
+  font-size: 1.05rem;
+  /* Larger font for legibility */
   line-height: 1.7;
-  border-radius: 0 12px 12px 12px;
+  letter-spacing: 0.01em;
+}
+
+.user-message .message-content {
+  background: #1e293b;
+  /* Solid Steel Blue - High Contrast */
+  padding: 24px;
+  border: 1px solid rgba(255, 214, 10, 0.4);
+  /* Stronger border */
+  color: #ffffff;
+  /* Pure White */
+  border-radius: 12px 0 12px 12px;
+  /* Distinct shape */
   margin-left: auto;
   max-width: 85%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .assistant-message .message-content {
-  background: transparent;
-  padding: 0;
+  background: #0f1115;
+  /* Solid very dark grey, not pure black, for better contrast against void */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Brighter border */
+  padding: 24px;
+  border-radius: 0 12px 12px 12px;
+  color: #e2e8f0;
+  /* Off-white for comfort reading */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  font-weight: 400;
+}
+
+/* Markdown Styles Override within Chat */
+.assistant-message strong {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.user-message strong {
+  color: var(--accent-gold);
 }
 
 /* Loading States */
@@ -100,19 +130,21 @@
   gap: 16px;
   padding: 16px 24px;
   margin: 16px 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-card-solid);
   border: 1px solid var(--border-glass);
   border-radius: 100px;
   /* Pill shape */
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 0.9rem;
   font-family: var(--font-mono);
   width: fit-content;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .stage-loading {
-  border-color: var(--accent-cyan-dim);
+  border-color: var(--accent-cyan);
   color: var(--accent-cyan);
+  box-shadow: 0 0 15px var(--accent-cyan-dim);
 }
 
 .input-form {
@@ -121,18 +153,19 @@
   gap: 16px;
   padding: 32px 40px;
   border-top: 1px solid var(--border-glass);
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
-  backdrop-filter: blur(10px);
+  background: #000000;
+  /* Solid Black backdrop for input area */
   width: 100%;
 }
 
 .message-input {
   flex: 1;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
+  /* Lighter background */
   border: 1px solid var(--border-glass);
   border-radius: 12px;
-  color: var(--text-primary);
+  color: #ffffff;
   font-size: 1rem;
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -143,7 +176,7 @@
 }
 
 .message-input:focus {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.15);
   border-color: var(--accent-cyan);
   box-shadow: 0 0 20px var(--accent-cyan-dim);
 }
@@ -171,4 +204,62 @@
   opacity: 0.3;
   cursor: not-allowed;
   transform: none;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+}
+
+.image-gen-button {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+
+.image-gen-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 20px rgba(255, 214, 10, 0.2);
+  transform: translateY(-2px);
+}
+
+.generated-image-container {
+  margin-top: 1.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border-glass);
+  max-width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.generated-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.generated-image:hover {
+  transform: scale(1.02);
+}
+
+.image-revised-prompt {
+  padding: 16px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid var(--border-glass);
+  line-height: 1.5;
+  font-style: italic;
 }

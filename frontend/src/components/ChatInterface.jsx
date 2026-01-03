@@ -10,6 +10,7 @@ export default function ChatInterface({
   conversation,
   onSendMessage,
   onVoiceMessage,
+  onGenerateImage,
   isLoading,
 }) {
   const [input, setInput] = useState('');
@@ -27,6 +28,14 @@ export default function ChatInterface({
     e.preventDefault();
     if (input.trim() && !isLoading) {
       onSendMessage(input);
+      setInput('');
+    }
+  };
+
+  const handleImageClick = (e) => {
+    e.preventDefault();
+    if (input.trim() && !isLoading) {
+      onGenerateImage(input);
       setInput('');
     }
   };
@@ -74,6 +83,23 @@ export default function ChatInterface({
                 <div className="assistant-message">
                   <div className="message-label">LLM Council</div>
 
+                  {/* Image Generation Case */}
+                  {msg.loading?.image && (
+                    <div className="stage-loading">
+                      <div className="spinner"></div>
+                      <span>Generating image with Flux...</span>
+                    </div>
+                  )}
+
+                  {msg.image && (
+                    <div className="generated-image-container">
+                      <img src={msg.image} alt="Generated" className="generated-image" />
+                      {msg.revised_prompt && (
+                        <p className="image-revised-prompt"><em>Prompt:</em> {msg.revised_prompt}</p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Stage 1 */}
                   {msg.loading?.stage1 && (
                     <div className="stage-loading">
@@ -115,7 +141,7 @@ export default function ChatInterface({
         {isLoading && (
           <div className="loading-indicator">
             <div className="spinner"></div>
-            <span>Consulting the council...</span>
+            <span>Processing...</span>
           </div>
         )}
 
@@ -126,20 +152,31 @@ export default function ChatInterface({
         <VoiceInput onVoiceMessage={onVoiceMessage} isProcessing={isLoading} />
         <textarea
           className="message-input"
-          placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
+          placeholder="Ask a question or describe an image..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isLoading}
           rows={3}
         />
-        <button
-          type="submit"
-          className="send-button"
-          disabled={!input.trim() || isLoading}
-        >
-          Send
-        </button>
+        <div className="button-group">
+          <button
+            type="button"
+            className="image-gen-button"
+            onClick={handleImageClick}
+            disabled={!input.trim() || isLoading}
+            title="Generate Image with Flux"
+          >
+            🎨
+          </button>
+          <button
+            type="submit"
+            className="send-button"
+            disabled={!input.trim() || isLoading}
+          >
+            Send
+          </button>
+        </div>
       </form>
     </div>
   );

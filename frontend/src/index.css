@@ -3,22 +3,29 @@
 :root {
   /* Colors - The Void & The Light */
   --bg-void: #050505;
-  --bg-panel: rgba(255, 255, 255, 0.03);
-  --bg-glass: rgba(10, 10, 10, 0.6);
-  
+  --bg-panel: rgba(20, 20, 25, 0.6);
+  /* Increased opacity for legibility */
+  --bg-card-solid: #0f1115;
+  /* Solid backdrop for critical elements */
+  --bg-glass: rgba(5, 5, 8, 0.85);
+  /* Darker glass for better contrast */
+
   --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #525252;
+  --text-secondary: #e0e0e0;
+  /* Much lighter for readability */
+  --text-muted: #9ca3af;
+  /* Distinct grey but readable */
 
   /* Accents - Neural Activity */
   --accent-cyan: #00f0ff;
-  --accent-cyan-dim: rgba(0, 240, 255, 0.1);
+  --accent-cyan-dim: rgba(0, 240, 255, 0.15);
   --accent-pink: #ff003c;
-  --accent-pink-dim: rgba(255, 0, 60, 0.1);
+  --accent-pink-dim: rgba(255, 0, 60, 0.15);
   --accent-gold: #ffd60a;
 
   /* Borders & Glass */
-  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass: rgba(255, 255, 255, 0.15);
+  /* Slightly brighter borders */
   --glass-blur: blur(20px);
   --shadow-neon: 0 0 20px rgba(0, 240, 255, 0.15);
 
@@ -38,7 +45,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--bg-void);
-  background-image: 
+  background-image:
     radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.05) 0%, transparent 25%),
     radial-gradient(circle at 85% 30%, rgba(255, 0, 60, 0.05) 0%, transparent 25%);
   color: var(--text-primary);
@@ -55,7 +62,12 @@ body {
 }
 
 /* Typography Utils */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-mono);
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -114,14 +126,26 @@ button {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {

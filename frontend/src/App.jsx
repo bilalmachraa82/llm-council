@@ -13,6 +13,7 @@ function App() {
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTier, setCurrentTier] = useState('pro');
+  const [danMode, setDanMode] = useState(null);
 
   // Load conversations on mount
   useEffect(() => {
@@ -83,22 +84,12 @@ function App() {
             // Update the placeholder with actual text
             setCurrentConversation((prev) => {
               const messages = [...prev.messages];
-              // Find the last user message which is our placeholder
-              // Actually, the backend sends 'transcription' first.
-              // We should find the user message with "🎤 Processing voice..."
-              // But simplified: just replace the last user message content if it matches placeholder
-              // or just rely on the fact that we know it's the second to last message.
-
               const userMsgIndex = messages.length - 2;
               if (messages[userMsgIndex] && messages[userMsgIndex].role === 'user') {
                 messages[userMsgIndex].content = event.text;
               }
               return { ...prev, messages };
             });
-            break;
-
-          case 'stage1_start':
-            // Already handled by optimistic update
             break;
 
           case 'stage1_complete':
@@ -111,10 +102,6 @@ function App() {
             });
             break;
 
-          case 'stage2_start':
-            // No state change needed
-            break;
-
           case 'stage2_complete':
             setCurrentConversation((prev) => {
               const messages = [...prev.messages];
@@ -124,10 +111,6 @@ function App() {
               lastMsg.loading.stage2 = false;
               return { ...prev, messages };
             });
-            break;
-
-          case 'stage3_start':
-            // No state change needed
             break;
 
           case 'stage3_complete':
@@ -147,23 +130,15 @@ function App() {
             break;
 
           case 'title_complete':
-            // Reload conversations to get updated title
-            loadConversations();
-            break;
-
           case 'complete':
-            // Stream complete, reload conversations list
             loadConversations();
-            setIsLoading(false);
+            if (eventType === 'complete') setIsLoading(false);
             break;
 
           case 'error':
             console.error('Stream error:', event.message);
             setIsLoading(false);
             break;
-
-          default:
-            console.log('Unknown event type:', eventType);
         }
       });
     } catch (error) {
@@ -188,14 +163,10 @@ function App() {
     }));
 
     try {
-      await api.sendMessageStream(currentConversationId, content, currentTier, (event) => {
+      await api.sendMessageStream(currentConversationId, content, currentTier, danMode, (event) => {
         const eventType = event.type;
 
         switch (eventType) {
-          case 'stage1_start':
-            // Already handled by optimistic update
-            break;
-
           case 'stage1_complete':
             setCurrentConversation((prev) => {
               const messages = [...prev.messages];
@@ -204,9 +175,6 @@ function App() {
               lastMsg.loading.stage1 = false;
               return { ...prev, messages };
             });
-            break;
-
-          case 'stage2_start':
             break;
 
           case 'stage2_complete':
@@ -218,9 +186,6 @@ function App() {
               lastMsg.loading.stage2 = false;
               return { ...prev, messages };
             });
-            break;
-
-          case 'stage3_start':
             break;
 
           case 'stage3_complete':
@@ -246,13 +211,45 @@ function App() {
             console.error('Stream error:', event.message);
             setIsLoading(false);
             break;
-
-          default:
-            console.log('Unknown event type:', eventType);
         }
       });
     } catch (error) {
       console.error('Failed to send message:', error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleGenerateImage = async (prompt) => {
+    if (!currentConversationId || isLoading) return;
+
+    setIsLoading(true);
+
+    // Optimistic update: user message and loading image
+    setCurrentConversation((prev) => ({
+      ...prev,
+      messages: [
+        ...prev.messages,
+        { role: 'user', content: `🎨 Generate image: ${prompt}` },
+        { role: 'assistant', loading: { image: true } },
+      ],
+    }));
+
+    try {
+      const result = await api.generateImage(prompt);
+
+      setCurrentConversation((prev) => {
+        const messages = [...prev.messages];
+        const lastMsg = messages[messages.length - 1];
+        lastMsg.image = result.url;
+        lastMsg.revised_prompt = result.revised_prompt;
+        lastMsg.loading.image = false;
+        return { ...prev, messages };
+      });
+
+      setIsLoading(false);
+      loadConversations(); // Update message count in sidebar
+    } catch (error) {
+      console.error('Failed to generate image:', error);
       setIsLoading(false);
     }
   };
@@ -272,16 +269,20 @@ function App() {
         onNewConversation={handleNewConversation}
         currentTier={currentTier}
         onTierChange={setCurrentTier}
+        danMode={danMode}
+        onDanModeChange={setDanMode}
       />
       <main className="main-content">
         <ChatInterface
           conversation={currentConversation}
           onSendMessage={handleSendMessage}
           onVoiceMessage={handleVoiceMessage}
+          onGenerateImage={handleGenerateImage}
           isLoading={isLoading}
         />
       </main>
     </div>
   );
 }
+
 export default App;

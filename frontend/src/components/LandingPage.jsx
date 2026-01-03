@@ -14,7 +14,7 @@ export default function LandingPage({ onEnter }) {
 
             <div className="landing-content">
                 <div className="landing-header">
-                    <span className="badge">BETA v1.0</span>
+                    <span className="badge">LIVE v2.0</span>
                     <span className="brand">AiParaTi</span>
                 </div>
 
@@ -33,6 +33,8 @@ export default function LandingPage({ onEnter }) {
 
                     <p className="tagline">
                         5 AI models. 3 stages. 1 optimal answer.
+                        <br />
+                        <span style={{ color: '#00f0ff', fontWeight: 600 }}>Now with Uncensored Mode & Image Studio.</span>
                     </p>
 
                     <button className="enter-btn" onClick={onEnter}>
@@ -41,36 +43,40 @@ export default function LandingPage({ onEnter }) {
                     </button>
                 </div>
 
-                {/* HOW IT WORKS SECTION */}
-                <div className="how-it-works">
-                    <h3 className="section-title">How It Works</h3>
-                    <div className="infographic_container">
-                        <img
-                            src="/council_infographic.png"
-                            alt="The Council Process: User Query -> 5 Models -> Analysis -> Chairman Synthesis -> Optimal Answer"
-                            className="council-infographic"
-                        />
+                {/* VISUAL & UNCENSORED SECTION */}
+                <div className="feature-showcase">
+                    <div className="feature-card glass-panel">
+                        <div className="feature-icon">🎨</div>
+                        <h3>Flux Image Studio</h3>
+                        <p>Generate photorealistic masterpieces directly in the chat using the world's best open-weight model.</p>
+                    </div>
+                    <div className="feature-card glass-panel">
+                        <div className="feature-icon">🏴‍☠️</div>
+                        <h3>Uncensored Council</h3>
+                        <p>Access raw, unfiltered intelligence via unrestricted models and DAN personas.</p>
+                    </div>
+                    <div className="feature-card glass-panel">
+                        <div className="feature-icon">🎤</div>
+                        <h3>Voice Control</h3>
+                        <p>Speak to the Council. Hear the Chairman speak back. Total hands-free immersion.</p>
                     </div>
                 </div>
 
                 {/* TIER COMPARISON SECTION */}
                 <div className="tier-comparison-section">
-                    <h3 className="section-title">Choose Your Council</h3>
+                    <h3 className="section-title">Choose Your Allegiance</h3>
                     <div className="tier-grid">
                         <div className="tier-card budget">
                             <div className="tier-header">
                                 <span className="tier-badge">Budget</span>
                                 <h4>Smart & Affordable</h4>
-                                <div className="tier-price">Best Intelligence per $</div>
+                                <div className="tier-price">Best Value</div>
                             </div>
                             <div className="tier-models">
-                                <p><strong>Powered by:</strong></p>
                                 <ul>
-                                    <li>DeepSeek V3.2 Thinking <span className="model-origin">🇨🇳</span></li>
-                                    <li>Gemini 2.5 Flash <span className="model-origin">🇺🇸</span></li>
-                                    <li>Llama 4 Maverick <span className="model-origin">🇺🇸</span></li>
-                                    <li>Claude 3.5 Haiku <span className="model-origin">🇺🇸</span></li>
-                                    <li>GPT-5 Nano <span className="model-origin">🇺🇸</span></li>
+                                    <li>DeepSeek V3.2 Thinking</li>
+                                    <li>Gemini 2.5 Flash</li>
+                                    <li>Llama 4 Maverick</li>
                                 </ul>
                             </div>
                         </div>
@@ -78,17 +84,31 @@ export default function LandingPage({ onEnter }) {
                         <div className="tier-card premium">
                             <div className="tier-header">
                                 <span className="tier-badge">Premium</span>
-                                <h4>5 Smartest AIs on Earth</h4>
-                                <div className="tier-price">Maximum Intelligence</div>
+                                <h4>Top 5 Global Minds</h4>
+                                <div className="tier-price">Max Intelligence</div>
                             </div>
                             <div className="tier-models">
-                                <p><strong>Powered by:</strong></p>
                                 <ul>
-                                    <li>GPT-5.2 <span className="model-score">#1 GPQA 92.4%</span></li>
-                                    <li>Gemini 3 Pro <span className="model-score">#1 Arena</span></li>
-                                    <li>Claude Opus 4.5 <span className="model-score">#1 WebDev</span></li>
-                                    <li>Grok 4.1 Thinking <span className="model-score">100% AIME</span></li>
-                                    <li>GLM 4.7 <span className="model-score">85.7% GPQA</span></li>
+                                    <li>GPT-5.2 <span className="model-score">#1</span></li>
+                                    <li>Gemini 3 Pro <span className="model-score">#1</span></li>
+                                    <li>Claude Opus 4.5 <span className="model-score">#1</span></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="tier-card uncensored">
+                            <div className="tier-header">
+                                <span className="tier-badge">Uncensored</span>
+                                <h4>Raw Freedom</h4>
+                                <div className="tier-price">No Limits</div>
+                            </div>
+                            <div className="tier-models">
+                                <p><strong>Featuring:</strong></p>
+                                <ul>
+                                    <li>Hermes 3 Unchained</li>
+                                    <li>Dolphin Mistral</li>
+                                    <li>Flux.1 Image Gen</li>
+                                    <li>DAN Mode Active</li>
                                 </ul>
                             </div>
                         </div>
@@ -97,7 +117,6 @@ export default function LandingPage({ onEnter }) {
 
                 {/* WHY COUNCIL SECTION */}
                 <div className="why-council">
-                    <h3 className="section-title">Why Council?</h3>
                     <div className="benefits-grid">
                         <div className="benefit">
                             <span className="benefit-icon">✓</span>
@@ -105,23 +124,17 @@ export default function LandingPage({ onEnter }) {
                         </div>
                         <div className="benefit">
                             <span className="benefit-icon">✓</span>
-                            <span>Transparent reasoning via rankings</span>
+                            <span>Transparent peer-review rankings</span>
                         </div>
                         <div className="benefit">
                             <span className="benefit-icon">✓</span>
-                            <span>Choose Premium or Budget tier</span>
+                            <span>Uncensored mode for pure research</span>
                         </div>
                         <div className="benefit">
                             <span className="benefit-icon">✓</span>
-                            <span>Voice Mode for hands-free interaction</span>
+                            <span>Visual Imagination Studio</span>
                         </div>
                     </div>
-                </div>
-
-                {/* MODELS SHOWCASE */}
-                <div className="models-showcase">
-                    <p className="models-label">Powered by</p>
-                    <p className="models-brand">AiParaTi</p>
                 </div>
 
                 <div className="landing-footer">
@@ -135,7 +148,7 @@ export default function LandingPage({ onEnter }) {
                     </div>
                     <div className="stat">
                         <span className="stat-val">∞</span>
-                        <span className="stat-label">Possibilities</span>
+                        <span className="stat-label">Freedom</span>
                     </div>
                 </div>
             </div>

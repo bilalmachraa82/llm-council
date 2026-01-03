@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import TierSelector from './TierSelector';
+import DANSelector from './DANSelector';
 import AuthModal from './AuthModal';
 import { useAuth } from '../AuthContext';
 import './Sidebar.css';
@@ -11,6 +12,8 @@ export default function Sidebar({
   onNewConversation,
   currentTier,
   onTierChange,
+  danMode,
+  onDanModeChange,
 }) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, isAuthenticated, signOut } = useAuth();
@@ -20,6 +23,13 @@ export default function Sidebar({
       <div className="sidebar-header">
         <h1>LLM Council</h1>
         <TierSelector currentTier={currentTier} onTierChange={onTierChange} />
+
+        <DANSelector
+          selectedMode={danMode}
+          onSelectMode={onDanModeChange}
+          isVisible={currentTier === 'uncensored'}
+        />
+
         <button className="new-conversation-btn" onClick={onNewConversation}>
           + New Conversation
         </button>

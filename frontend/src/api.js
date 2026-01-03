@@ -115,10 +115,12 @@ export const api = {
    * Send a message and receive streaming updates.
    * @param {string} conversationId - The conversation ID
    * @param {string} content - The message content
+   * @param {string} tier - The tier (pro, budget, uncensored)
+   * @param {string|null} danMode - The DAN persona key
    * @param {function} onEvent - Callback function for each event: (eventType, data) => void
    * @returns {Promise<void>}
    */
-  async sendMessageStream(conversationId, content, tier, onEvent) {
+  async sendMessageStream(conversationId, content, tier, danMode, onEvent) {
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,
       {
@@ -126,7 +128,7 @@ export const api = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content, tier }),
+        body: JSON.stringify({ content, tier, dan_mode: danMode }),
       }
     );
 
@@ -156,5 +158,26 @@ export const api = {
         }
       }
     }
+  },
+
+  /**
+   * Generate an image based on a prompt.
+   * @param {string} prompt - The image description
+   * @returns {Promise<Object>} - The standard response with image URL
+   */
+  async generateImage(prompt) {
+    const response = await fetch(`${API_BASE}/api/generate-image`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Image generation failed');
+    }
+
+    return response.json();
   },
 };
