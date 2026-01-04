@@ -45,7 +45,7 @@ vercel_pattern = r"https://.*\.vercel\.app"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_origin_regex=vercel_pattern,
     allow_credentials=True,
     allow_methods=["*"],
