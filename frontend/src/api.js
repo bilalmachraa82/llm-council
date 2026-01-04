@@ -2,7 +2,7 @@
  * API client for the LLM Council backend.
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://llm-council-backend-production.up.railway.app';
 
 export const api = {
   /**
@@ -179,5 +179,41 @@ export const api = {
     }
 
     return response.json();
+  },
+  /**
+   * Perform Deep Research with streaming updates.
+   * @param {string} prompt - The research query
+   * @param {function} onEvent - Callback for SSE events
+   */
+  async performDeepResearchStream(prompt, onEvent) {
+    const response = await fetch(`${API_BASE}/api/deep-research/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+    });
+
+    if (!response.ok) throw new Error('Deep Research failed to start');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const event = JSON.parse(line.slice(6));
+            onEvent(event);
+          } catch (e) {
+            console.error('SSE Error:', e);
+          }
+        }
+      }
+    }
   },
 };

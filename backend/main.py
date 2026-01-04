@@ -15,6 +15,7 @@ from . import storage_prisma as storage
 from . import voice
 from . import auth
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
+from .deep_research import run_deep_research
 from .images import generate_image
 
 app = FastAPI(title="LLM Council API")
@@ -25,6 +26,7 @@ base_origins = [
     "http://localhost:3000",
     "https://llm-council-frontend.vercel.app",
     "https://llm-council.aiparati.pt",
+    "https://llm-council-neon.vercel.app",
 ]
 
 env_origins = os.getenv("CORS_ORIGINS", "")
@@ -36,7 +38,7 @@ origins = list(set(base_origins))
 
 # Regex pattern to match all Vercel preview deployments
 import re
-vercel_pattern = r"https://frontend-[a-z0-9]+-bilalmachraa82s-projects\.vercel\.app"
+vercel_pattern = r"https://.*\.vercel\.app"
 
 app.add_middleware(
     CORSMiddleware,
@@ -56,7 +58,7 @@ class CreateConversationRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
     content: str
-    tier: str = "pro"  # "pro", "budget", "ultra", or "uncensored"
+    tier: str = "pro"  # "pro" or "budget"
     dan_mode: Optional[str] = None  # Specific DAN persona key (e.g., "classic", "machiavelli")
 
 
@@ -213,7 +215,9 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
 
     # Run the 3-stage council process
     stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
-        request.content
+        request.content,
+        tier=request.tier,
+        dan_mode=request.dan_mode
     )
 
     # Add assistant message with all stages
@@ -259,7 +263,7 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
 
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content, request.tier)
+            stage1_results = await stage1_collect_responses(request.content, request.tier, request.dan_mode)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings
@@ -427,6 +431,33 @@ async def api_generate_image(request: ImageGenerationRequest):
     if not result:
         raise HTTPException(status_code=500, detail="Image generation failed")
     return result
+
+@app.post("/api/deep-research/stream")
+async def api_deep_research_stream(request: ImageGenerationRequest):
+    """
+    Run Deep Research workflow.
+    Re-using ImageGenerationRequest temporarily for 'prompt' field, or create a new model.
+    Actually, let's just use the 'prompt' from the body.
+    """
+    prompt = request.prompt
+    
+    async def event_generator():
+        try:
+            async for update in run_deep_research(prompt):
+                yield f"data: {json.dumps(update)}\n\n"
+            
+            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
 
 
 if __name__ == "__main__":

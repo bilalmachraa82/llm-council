@@ -10,11 +10,13 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 MODELS_TO_TEST = [
-    "openai/gpt-4o",
-    "google/gemini-1.5-pro",
-    "anthropic/claude-3.5-sonnet",
-    "meta-llama/llama-3.1-405b-instruct",
+    "nousresearch/hermes-3-llama-3.1-405b",
     "deepseek/deepseek-chat",
+    "sao10k/l3-euryale-70b",          # Excellent RP/Uncensored
+    "liquid/lfm-40b",                 # Strong efficient model
+    "mistralai/mistral-7b-instruct:free", # Fallback
+    "google/gemini-flash-1.5-8b",     # Fast variant
+    "lizpreciatior/lzlv-70b-fp16-hf"  # Another RP capable
 ]
 
 async def test_model(model):

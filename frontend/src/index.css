@@ -1,37 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Colors - The Void & The Light */
-  --bg-void: #050505;
-  --bg-panel: rgba(20, 20, 25, 0.6);
-  /* Increased opacity for legibility */
-  --bg-card-solid: #0f1115;
-  /* Solid backdrop for critical elements */
-  --bg-glass: rgba(5, 5, 8, 0.85);
-  /* Darker glass for better contrast */
+  /* Ultrathink Palette 2026: Deep Void & Electric Accents */
+  --bg-void: #000000;
+  /* True Black */
+  --bg-panel: #0a0a0a;
+  /* Almost Black */
+  --bg-card: rgba(20, 20, 20, 0.6);
+  --bg-card-solid: #111111;
 
-  --text-primary: #ffffff;
-  --text-secondary: #e0e0e0;
-  /* Much lighter for readability */
-  --text-muted: #9ca3af;
-  /* Distinct grey but readable */
+  --text-primary: #f0f0f0;
+  /* Off-White for max legibility */
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
 
-  /* Accents - Neural Activity */
   --accent-cyan: #00f0ff;
-  --accent-cyan-dim: rgba(0, 240, 255, 0.15);
+  --accent-cyan-dim: rgba(0, 240, 255, 0.1);
   --accent-pink: #ff003c;
-  --accent-pink-dim: rgba(255, 0, 60, 0.15);
-  --accent-gold: #ffd60a;
-
-  /* Borders & Glass */
+  --accent-gold: #ffd700;
   --border-glass: rgba(255, 255, 255, 0.15);
-  /* Slightly brighter borders */
-  --glass-blur: blur(20px);
-  --shadow-neon: 0 0 20px rgba(0, 240, 255, 0.15);
+  --border-active: rgba(0, 240, 255, 0.5);
 
-  /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Space Grotesk', monospace;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --sidebar-width: 300px;
+  --header-height: 60px;
+
+  /* PWA Safe Areas */
+  --sa-top: env(safe-area-inset-top);
+  --sa-bottom: env(safe-area-inset-bottom);
 }
 
 * {

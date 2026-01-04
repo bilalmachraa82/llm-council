@@ -88,4 +88,24 @@ CHAIRMAN_MODEL = "nousresearch/hermes-3-llama-3.1-405b" if COUNCIL_TYPE == "UNCE
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # Data directory for conversation storage
+# Data directory for conversation storage
 DATA_DIR = "data/conversations"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DEEP RESEARCH CONFIGURATION - TIER 2
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Search Provider: "duckduckgo" (Free) or "tavily" (Premium)
+# For TAVILY, you must set TAVILY_API_KEY in .env
+SEARCH_PROVIDER = os.getenv("SEARCH_PROVIDER", "duckduckgo")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
+# Deep Research Models - 5 Agent System
+DEEP_RESEARCH_MODELS = {
+    "lead": "google/gemini-2.0-flash-thinking-exp-1219",  # Planning
+    "analyst": "anthropic/claude-3.5-sonnet",             # Data Extraction
+    "trend_hunter": "google/gemini-2.0-flash-exp",        # Signals
+    "skeptic": "anthropic/claude-3.5-sonnet",             # Logic/Fact Checking
+    "editor": "google/gemini-2.0-pro-exp-02-05"           # Synthesis
+}

@@ -4,6 +4,7 @@ import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
 import VoiceInput from './VoiceInput';
+import DeepResearchStatus from './DeepResearchStatus'; // Import the new component
 import './ChatInterface.css';
 
 export default function ChatInterface({
@@ -11,9 +12,13 @@ export default function ChatInterface({
   onSendMessage,
   onVoiceMessage,
   onGenerateImage,
+  onDeepResearch, // New prop for handling Deep Research
   isLoading,
+  onToggleSidebar,
 }) {
   const [input, setInput] = useState('');
+  const [showSystemInfo, setShowSystemInfo] = useState(false);
+  const [isDeepResearchMode, setIsDeepResearchMode] = useState(false); // Toggle state
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -27,7 +32,11 @@ export default function ChatInterface({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
-      onSendMessage(input);
+      if (isDeepResearchMode) {
+        onDeepResearch(input); // Call specific handler if in Deep Research mode
+      } else {
+        onSendMessage(input);
+      }
       setInput('');
     }
   };
@@ -48,9 +57,15 @@ export default function ChatInterface({
     }
   };
 
+  const toggleSystemInfo = () => setShowSystemInfo(!showSystemInfo);
+
   if (!conversation) {
     return (
       <div className="chat-interface">
+        <div className="mobile-header">
+          <button className="hamburger-btn" onClick={onToggleSidebar}>☰</button>
+          <span className="brand-mobile">AiParaTi Council</span>
+        </div>
         <div className="empty-state">
           <h2>Welcome to LLM Council</h2>
           <p>Create a new conversation to get started</p>
@@ -61,6 +76,12 @@ export default function ChatInterface({
 
   return (
     <div className="chat-interface">
+      <div className="mobile-header">
+        <button className="hamburger-btn" onClick={onToggleSidebar}>☰</button>
+        <span className="brand-mobile">AiParaTi Council</span>
+        {/* <button className="info-btn" onClick={toggleSystemInfo}>ℹ️</button> */}
+      </div>
+
       <div className="messages-container">
         {conversation.messages.length === 0 ? (
           <div className="empty-state">
@@ -82,6 +103,14 @@ export default function ChatInterface({
               ) : (
                 <div className="assistant-message">
                   <div className="message-label">LLM Council</div>
+
+                  {/* Deep Research Component */}
+                  {msg.isDeepResearch && (
+                    <DeepResearchStatus 
+                        events={msg.deepResearchEvents || []} 
+                        isComplete={msg.isComplete}
+                    />
+                  )}
 
                   {/* Image Generation Case */}
                   {msg.loading?.image && (
@@ -148,36 +177,62 @@ export default function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="input-form" onSubmit={handleSubmit}>
-        <VoiceInput onVoiceMessage={onVoiceMessage} isProcessing={isLoading} />
-        <textarea
-          className="message-input"
-          placeholder="Ask a question or describe an image..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isLoading}
-          rows={3}
-        />
-        <div className="button-group">
-          <button
-            type="button"
-            className="image-gen-button"
-            onClick={handleImageClick}
-            disabled={!input.trim() || isLoading}
-            title="Generate Image with Flux"
-          >
-            🎨
-          </button>
-          <button
-            type="submit"
-            className="send-button"
-            disabled={!input.trim() || isLoading}
-          >
-            Send
-          </button>
+      <div className="input-area-wrapper">
+        <form className="input-form full-width" onSubmit={handleSubmit}>
+          <div className="input-container">
+             {/* Deep Research Toggle */}
+             <button
+              type="button"
+              className={`mode-toggle-btn ${isDeepResearchMode ? 'active' : ''}`}
+              onClick={() => setIsDeepResearchMode(!isDeepResearchMode)}
+              title={isDeepResearchMode ? "Reference Mode Active" : "Enable Deep Research"}
+            >
+              {isDeepResearchMode ? '🧠' : '⚡'}
+            </button>
+
+            <VoiceInput onVoiceMessage={onVoiceMessage} isProcessing={isLoading} />
+            <textarea
+              className="message-input"
+              placeholder={isDeepResearchMode ? "Enter topic for Deep Research..." : "Ask a question or describe an image..."}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isLoading}
+              rows={1}
+            />
+            {/* Hide Image Gen button in Deep Research mode to reduce clutter */}
+            {!isDeepResearchMode && (
+                <button
+                type="button"
+                className="image-gen-button"
+                onClick={handleImageClick}
+                disabled={!input.trim() || isLoading}
+                title="Generate Image with Flux"
+                >
+                🎨
+                </button>
+            )}
+            
+            <button
+              type="submit"
+              className="send-button"
+              disabled={!input.trim() || isLoading}
+            >
+              ➤
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* System Info Modal */}
+      {showSystemInfo && (
+        <div className="system-info-modal" onClick={toggleSystemInfo}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-modal" onClick={toggleSystemInfo}>×</button>
+            <img src="/council_infographic.png" alt="System Architecture" className="infographic" />
+          </div>
         </div>
-      </form>
+      )}
     </div>
   );
 }

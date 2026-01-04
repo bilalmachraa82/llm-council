@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
+import ImageStudio from './components/ImageStudio';
 import LandingPage from './components/LandingPage';
 import { api } from './api';
 import './App.css';
@@ -14,6 +15,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentTier, setCurrentTier] = useState('pro');
   const [danMode, setDanMode] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeView, setActiveView] = useState('chat'); // 'chat' or 'studio'
 
   // Load conversations on mount
   useEffect(() => {
@@ -263,6 +266,8 @@ function App() {
   return (
     <div className="app">
       <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
@@ -271,15 +276,22 @@ function App() {
         onTierChange={setCurrentTier}
         danMode={danMode}
         onDanModeChange={setDanMode}
+        activeView={activeView}
+        onViewChange={setActiveView}
       />
       <main className="main-content">
-        <ChatInterface
-          conversation={currentConversation}
-          onSendMessage={handleSendMessage}
-          onVoiceMessage={handleVoiceMessage}
-          onGenerateImage={handleGenerateImage}
-          isLoading={isLoading}
-        />
+        {activeView === 'chat' ? (
+          <ChatInterface
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+            conversation={currentConversation}
+            onSendMessage={handleSendMessage}
+            onVoiceMessage={handleVoiceMessage}
+            onGenerateImage={handleGenerateImage}
+            isLoading={isLoading}
+          />
+        ) : (
+          <ImageStudio onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+        )}
       </main>
     </div>
   );
