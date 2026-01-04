@@ -27,6 +27,8 @@ base_origins = [
     "https://llm-council-frontend.vercel.app",
     "https://llm-council.aiparati.pt",
     "https://ll-council.aiparati.pt",
+    "https://llm-council-aiparati.vercel.app",
+    "https://llm-council-git-main-bilalmachraa82s-projects.vercel.app",
     "https://llm-council-neon.vercel.app",
 ]
 
