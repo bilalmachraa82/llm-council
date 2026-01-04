@@ -51,7 +51,8 @@ OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 DATA_DIR = "data/conversations"
 
 # Image Generation Model (Flux via OpenRouter)
-IMAGE_MODEL = "black-forest-labs/flux-1-schnell"
+# Image Generation Model (Flux via OpenRouter)
+IMAGE_MODEL = "black-forest-labs/flux-1-dev"
 
 
 def get_models_for_tier(tier: str) -> tuple:
@@ -91,7 +92,7 @@ def get_models_for_tier(tier: str) -> tuple:
         return (
             [
                 "nousresearch/hermes-3-llama-3.1-405b",          # The "Brain" (Smartest Uncensored)
-                "openrouter/uncensored-dolphin-mistral-24b-venice", # The "Anarchist" (Pure DAN)
+                "cognitivecomputations/dolphin-mistral-24b-venice-edition:free", # The "Anarchist" (Pure DAN)
                 "deepseek/deepseek-chat",                        # The "Dragon" (DeepSeek V3 Uncensored)
                 "eva-unit-01/eva-qwen-2.5-72b",                  # The "Storyteller" (Qwen 2.5 Uncensored)
                 "cognitivecomputations/dolphin-mixtral-8x22b",   # The "Diplomat" (Balanced)

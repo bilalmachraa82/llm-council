@@ -140,6 +140,45 @@
     display: block;
 }
 
+.gallery-image-wrapper {
+    position: relative;
+    /* Wrapper ensures button is positioned relative to image */
+}
+
+.gallery-download-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0;
+    /* Hidden by default */
+    transform: translateY(10px);
+}
+
+.gallery-item:hover .gallery-download-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gallery-download-btn:hover {
+    background: var(--accent-gold);
+    color: black;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
 .gallery-item-prompt {
     padding: 16px;
     font-size: 0.9rem;

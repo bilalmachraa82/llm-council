@@ -15,6 +15,7 @@ from . import storage_prisma as storage
 from . import voice
 from . import auth
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
+from .deep_research import run_deep_research
 from .images import generate_image
 
 app = FastAPI(title="LLM Council API")
@@ -427,6 +428,33 @@ async def api_generate_image(request: ImageGenerationRequest):
     if not result:
         raise HTTPException(status_code=500, detail="Image generation failed")
     return result
+
+@app.post("/api/deep-research/stream")
+async def api_deep_research_stream(request: ImageGenerationRequest):
+    """
+    Run Deep Research workflow.
+    Re-using ImageGenerationRequest temporarily for 'prompt' field, or create a new model.
+    Actually, let's just use the 'prompt' from the body.
+    """
+    prompt = request.prompt
+    
+    async def event_generator():
+        try:
+            async for update in run_deep_research(prompt):
+                yield f"data: {json.dumps(update)}\n\n"
+            
+            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
 
 
 if __name__ == "__main__":

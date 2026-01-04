@@ -33,6 +33,15 @@ export default function ImageStudio({ onToggleSidebar }) {
         }
     };
 
+    const handleDownload = (imgUrl, index) => {
+        const link = document.createElement('a');
+        link.href = imgUrl;
+        link.download = `flux-generated-${Date.now()}-${index}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="image-studio">
             <div className="mobile-header">
@@ -80,7 +89,16 @@ export default function ImageStudio({ onToggleSidebar }) {
                     <div className="gallery-grid">
                         {generatedImages.map((img, index) => (
                             <div key={img.timestamp} className="gallery-item">
-                                <img src={img.url} alt={`Generated ${index + 1}`} />
+                                <div className="gallery-image-wrapper">
+                                    <img src={img.url} alt={`Generated ${index + 1}`} />
+                                    <button
+                                        className="gallery-download-btn"
+                                        onClick={() => handleDownload(img.url, index)}
+                                        title="Download Image"
+                                    >
+                                        ⬇️
+                                    </button>
+                                </div>
                                 <div className="gallery-item-prompt">{img.prompt}</div>
                             </div>
                         ))}
