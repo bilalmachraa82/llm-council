@@ -2,7 +2,10 @@
 
 import httpx
 from typing import Optional, Dict, Any
-from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL, IMAGE_MODEL
+from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
+
+# Use Flux Pro model for image generation
+IMAGE_MODEL = "black-forest-labs/flux.2-pro"
 
 async def generate_image(prompt: str) -> Optional[Dict[str, Any]]:
     """
@@ -17,6 +20,8 @@ async def generate_image(prompt: str) -> Optional[Dict[str, Any]]:
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://llm-council.aiparati.pt",
+        "X-Title": "LLM Council Image Studio",
     }
 
     payload = {
@@ -24,18 +29,9 @@ async def generate_image(prompt: str) -> Optional[Dict[str, Any]]:
         "messages": [
             {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": prompt
-                    }
-                ]
+                "content": prompt
             }
         ],
-        "modalities": ["image", "text"],
-        "response_format": {
-            "type": "text"
-        }
     }
 
     try:
@@ -45,27 +41,40 @@ async def generate_image(prompt: str) -> Optional[Dict[str, Any]]:
                 headers=headers,
                 json=payload
             )
+            
             response.raise_for_status()
             data = response.json()
             
-            # Extract image outcome
-            # The structure for multi-modal responses can vary, 
-            # but usually it's in message.content as a list or a specific field.
+            # Extract image from response
             message = data['choices'][0]['message']
-            content = message.get('content')
             
-            # OpenRouter Flux usually returns a list of content blocks
+            # OpenRouter Flux puts images in message.images field (not content)
+            images = message.get('images', [])
+            if images:
+                for img in images:
+                    if img.get('type') == 'image_url':
+                        image_url = img.get('image_url', {}).get('url')
+                        if image_url:
+                            return {'url': image_url, 'revised_prompt': prompt}
+            
+            # Fallback: check content field (for other models)
+            content = message.get('content')
             if isinstance(content, list):
                 for block in content:
-                    if block.get('type') == 'image':
-                        return {
-                            'url': block.get('image', {}).get('url'),
-                            'revised_prompt': block.get('image', {}).get('revised_prompt')
-                        }
+                    if block.get('type') == 'image_url':
+                        image_url = block.get('image_url', {}).get('url')
+                        if image_url:
+                            return {'url': image_url, 'revised_prompt': prompt}
+            elif isinstance(content, str) and content.startswith('data:image'):
+                return {'url': content, 'revised_prompt': prompt}
             
-            # Fallback if it's not a list or structure is different
-            return {'raw_data': data}
+            # No image found
+            print(f"No image found in response: {str(data)[:500]}")
+            return None
 
     except Exception as e:
         print(f"Error generating image: {e}")
         return None
+
+
+
