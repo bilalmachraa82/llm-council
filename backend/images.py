@@ -72,6 +72,10 @@ async def generate_image(prompt: str) -> Optional[Dict[str, Any]]:
             print(f"No image found in response: {str(data)[:500]}")
             return None
 
+    except httpx.HTTPStatusError as e:
+        print(f"OpenRouter API Error: {e.response.status_code}")
+        print(f"Error Body: {e.response.text}")
+        return None
     except Exception as e:
         print(f"Error generating image: {e}")
         return None
