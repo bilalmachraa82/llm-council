@@ -38,7 +38,7 @@ origins = list(set(base_origins))
 
 # Regex pattern to match all Vercel preview deployments
 import re
-vercel_pattern = r"https://frontend-[a-z0-9]+-bilalmachraa82s-projects\.vercel\.app"
+vercel_pattern = r"https://.*\.vercel\.app"
 
 app.add_middleware(
     CORSMiddleware,
