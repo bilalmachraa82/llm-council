@@ -1,5 +1,6 @@
 [build]
 builder = "NIXPACKS"
+buildCommand = "prisma generate --schema=backend/prisma/schema.prisma"
 
 [deploy]
 startCommand = "python -m backend.main"

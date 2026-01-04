@@ -57,7 +57,7 @@ class CreateConversationRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
     content: str
-    tier: str = "pro"  # "pro", "budget", "ultra", or "uncensored"
+    tier: str = "pro"  # "pro" or "budget"
     dan_mode: Optional[str] = None  # Specific DAN persona key (e.g., "classic", "machiavelli")
 
 
@@ -214,7 +214,9 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
 
     # Run the 3-stage council process
     stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
-        request.content
+        request.content,
+        tier=request.tier,
+        dan_mode=request.dan_mode
     )
 
     # Add assistant message with all stages
@@ -260,7 +262,7 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
 
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content, request.tier)
+            stage1_results = await stage1_collect_responses(request.content, request.tier, request.dan_mode)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings

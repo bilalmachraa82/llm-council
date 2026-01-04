@@ -14,7 +14,7 @@ export default function LandingPage({ onEnter }) {
 
             <div className="landing-content">
                 <div className="landing-header">
-                    <span className="badge">LIVE v2.0</span>
+                    <span className="badge">LIVE v2.2</span>
                     <span className="brand">AiParaTi</span>
                 </div>
 
