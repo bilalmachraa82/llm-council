@@ -1,0 +1,8 @@
+backend/
+*.py
+requirements.txt
+Procfile
+railway.toml
+nixpacks.toml
+.env
+.env.example
