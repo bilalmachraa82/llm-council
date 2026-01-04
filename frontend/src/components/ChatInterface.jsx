@@ -12,8 +12,10 @@ export default function ChatInterface({
   onVoiceMessage,
   onGenerateImage,
   isLoading,
+  onToggleSidebar,
 }) {
   const [input, setInput] = useState('');
+  const [showSystemInfo, setShowSystemInfo] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -48,9 +50,15 @@ export default function ChatInterface({
     }
   };
 
+  const toggleSystemInfo = () => setShowSystemInfo(!showSystemInfo);
+
   if (!conversation) {
     return (
       <div className="chat-interface">
+        <div className="mobile-header">
+          <button className="hamburger-btn" onClick={onToggleSidebar}>☰</button>
+          <span className="brand-mobile">AiParaTi Council</span>
+        </div>
         <div className="empty-state">
           <h2>Welcome to LLM Council</h2>
           <p>Create a new conversation to get started</p>
@@ -61,6 +69,12 @@ export default function ChatInterface({
 
   return (
     <div className="chat-interface">
+      <div className="mobile-header">
+        <button className="hamburger-btn" onClick={onToggleSidebar}>☰</button>
+        <span className="brand-mobile">AiParaTi Council</span>
+        {/* <button className="info-btn" onClick={toggleSystemInfo}>ℹ️</button> */}
+      </div>
+
       <div className="messages-container">
         {conversation.messages.length === 0 ? (
           <div className="empty-state">
@@ -148,36 +162,48 @@ export default function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="input-form" onSubmit={handleSubmit}>
-        <VoiceInput onVoiceMessage={onVoiceMessage} isProcessing={isLoading} />
-        <textarea
-          className="message-input"
-          placeholder="Ask a question or describe an image..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isLoading}
-          rows={3}
-        />
-        <div className="button-group">
-          <button
-            type="button"
-            className="image-gen-button"
-            onClick={handleImageClick}
-            disabled={!input.trim() || isLoading}
-            title="Generate Image with Flux"
-          >
-            🎨
-          </button>
-          <button
-            type="submit"
-            className="send-button"
-            disabled={!input.trim() || isLoading}
-          >
-            Send
-          </button>
+      <div className="input-area-wrapper">
+        <form className="input-form full-width" onSubmit={handleSubmit}>
+          <div className="input-container">
+            <VoiceInput onVoiceMessage={onVoiceMessage} isProcessing={isLoading} />
+            <textarea
+              className="message-input"
+              placeholder="Ask a question or describe an image..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isLoading}
+              rows={1}
+            />
+            <button
+              type="button"
+              className="image-gen-button"
+              onClick={handleImageClick}
+              disabled={!input.trim() || isLoading}
+              title="Generate Image with Flux"
+            >
+              🎨
+            </button>
+            <button
+              type="submit"
+              className="send-button"
+              disabled={!input.trim() || isLoading}
+            >
+              ➤
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* System Info Modal */}
+      {showSystemInfo && (
+        <div className="system-info-modal" onClick={toggleSystemInfo}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-modal" onClick={toggleSystemInfo}>×</button>
+            <img src="/council_infographic.png" alt="System Architecture" className="infographic" />
+          </div>
         </div>
-      </form>
+      )}
     </div>
   );
 }
