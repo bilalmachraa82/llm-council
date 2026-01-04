@@ -175,7 +175,14 @@ export const api = {
     });
 
     if (!response.ok) {
-      throw new Error('Image generation failed');
+      let errorMessage = 'Image generation failed';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.detail || errorData.message || errorMessage;
+      } catch (e) {
+        // ignore JSON parse error
+      }
+      throw new Error(errorMessage);
     }
 
     return response.json();

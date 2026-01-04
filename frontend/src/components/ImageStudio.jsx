@@ -21,7 +21,7 @@ export default function ImageStudio({ onToggleSidebar }) {
             setPrompt('');
         } catch (error) {
             console.error('Image generation failed:', error);
-            alert('Image generation failed. Please check if the backend is running.');
+            alert(`Error: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
