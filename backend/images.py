@@ -32,6 +32,12 @@ async def generate_image(prompt: str) -> Optional[Dict[str, Any]]:
                 "content": prompt
             }
         ],
+        "provider": {
+            "allow_fallbacks": False
+        },
+        # Attempt to disable safety checkers for providers that support it
+        "safety_tolerance": "6",  # For Flux Pro/Dev on some providers
+        "enable_safety_checker": False, # For Flux Schnell on Replicate/Fal
     }
 
     try:
