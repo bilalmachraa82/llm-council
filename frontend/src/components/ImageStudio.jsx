@@ -106,28 +106,25 @@ export default function ImageStudio({ onToggleSidebar }) {
                     </div>
                 )}
             </div>
-        </div>
 
-            {/* Zoom Modal */ }
-    {
-        selectedImage && (
-            <div className="image-zoom-overlay" onClick={() => setSelectedImage(null)}>
-                <div className="image-zoom-content" onClick={e => e.stopPropagation()}>
-                    <img src={selectedImage.url} alt="Zoomed View" />
-                    <button className="close-zoom-btn" onClick={() => setSelectedImage(null)}>×</button>
-                    <div className="zoom-actions">
-                        <span className="zoom-prompt">{selectedImage.prompt}</span>
-                        <button
-                            className="zoom-download-btn"
-                            onClick={() => handleDownload(selectedImage.url, selectedImage.timestamp)}
-                        >
-                            Download HD
-                        </button>
+            {/* Zoom Modal */}
+            {selectedImage && (
+                <div className="image-zoom-overlay" onClick={() => setSelectedImage(null)}>
+                    <div className="image-zoom-content" onClick={e => e.stopPropagation()}>
+                        <img src={selectedImage.url} alt="Zoomed View" />
+                        <button className="close-zoom-btn" onClick={() => setSelectedImage(null)}>×</button>
+                        <div className="zoom-actions">
+                            <span className="zoom-prompt">{selectedImage.prompt}</span>
+                            <button
+                                className="zoom-download-btn"
+                                onClick={() => handleDownload(selectedImage.url, selectedImage.timestamp)}
+                            >
+                                Download HD
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        )
-    }
-        </div >
+            )}
+        </div>
     );
 }
