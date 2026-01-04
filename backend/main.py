@@ -26,6 +26,7 @@ base_origins = [
     "http://localhost:3000",
     "https://llm-council-frontend.vercel.app",
     "https://llm-council.aiparati.pt",
+    "https://ll-council.aiparati.pt",
     "https://llm-council-neon.vercel.app",
 ]
 
