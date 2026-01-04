@@ -4,6 +4,7 @@ import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
 import VoiceInput from './VoiceInput';
+import DeepResearchStatus from './DeepResearchStatus'; // Import the new component
 import './ChatInterface.css';
 
 export default function ChatInterface({
@@ -11,11 +12,13 @@ export default function ChatInterface({
   onSendMessage,
   onVoiceMessage,
   onGenerateImage,
+  onDeepResearch, // New prop for handling Deep Research
   isLoading,
   onToggleSidebar,
 }) {
   const [input, setInput] = useState('');
   const [showSystemInfo, setShowSystemInfo] = useState(false);
+  const [isDeepResearchMode, setIsDeepResearchMode] = useState(false); // Toggle state
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -29,7 +32,11 @@ export default function ChatInterface({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
-      onSendMessage(input);
+      if (isDeepResearchMode) {
+        onDeepResearch(input); // Call specific handler if in Deep Research mode
+      } else {
+        onSendMessage(input);
+      }
       setInput('');
     }
   };
@@ -96,6 +103,14 @@ export default function ChatInterface({
               ) : (
                 <div className="assistant-message">
                   <div className="message-label">LLM Council</div>
+
+                  {/* Deep Research Component */}
+                  {msg.isDeepResearch && (
+                    <DeepResearchStatus 
+                        events={msg.deepResearchEvents || []} 
+                        isComplete={msg.isComplete}
+                    />
+                  )}
 
                   {/* Image Generation Case */}
                   {msg.loading?.image && (
@@ -165,25 +180,39 @@ export default function ChatInterface({
       <div className="input-area-wrapper">
         <form className="input-form full-width" onSubmit={handleSubmit}>
           <div className="input-container">
+             {/* Deep Research Toggle */}
+             <button
+              type="button"
+              className={`mode-toggle-btn ${isDeepResearchMode ? 'active' : ''}`}
+              onClick={() => setIsDeepResearchMode(!isDeepResearchMode)}
+              title={isDeepResearchMode ? "Reference Mode Active" : "Enable Deep Research"}
+            >
+              {isDeepResearchMode ? '🧠' : '⚡'}
+            </button>
+
             <VoiceInput onVoiceMessage={onVoiceMessage} isProcessing={isLoading} />
             <textarea
               className="message-input"
-              placeholder="Ask a question or describe an image..."
+              placeholder={isDeepResearchMode ? "Enter topic for Deep Research..." : "Ask a question or describe an image..."}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isLoading}
               rows={1}
             />
-            <button
-              type="button"
-              className="image-gen-button"
-              onClick={handleImageClick}
-              disabled={!input.trim() || isLoading}
-              title="Generate Image with Flux"
-            >
-              🎨
-            </button>
+            {/* Hide Image Gen button in Deep Research mode to reduce clutter */}
+            {!isDeepResearchMode && (
+                <button
+                type="button"
+                className="image-gen-button"
+                onClick={handleImageClick}
+                disabled={!input.trim() || isLoading}
+                title="Generate Image with Flux"
+                >
+                🎨
+                </button>
+            )}
+            
             <button
               type="submit"
               className="send-button"

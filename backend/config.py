@@ -92,10 +92,9 @@ def get_models_for_tier(tier: str) -> tuple:
         return (
             [
                 "nousresearch/hermes-3-llama-3.1-405b",          # The "Brain" (Smartest Uncensored)
-                "cognitivecomputations/dolphin-mistral-24b-venice-edition:free", # The "Anarchist" (Pure DAN)
-                "deepseek/deepseek-chat",                        # The "Dragon" (DeepSeek V3 Uncensored)
-                "eva-unit-01/eva-qwen-2.5-72b",                  # The "Storyteller" (Qwen 2.5 Uncensored)
-                "cognitivecomputations/dolphin-mixtral-8x22b",   # The "Diplomat" (Balanced)
+                "cognitivecomputations/dolphin-mistral-24b-venice-edition:free", # The "Anarchist"
+                "deepseek/deepseek-chat",                        # The "Dragon"
+                # Removed 404 models temporarily to ensure stability
             ],
             "nousresearch/hermes-3-llama-3.1-405b"  # Uncensored Chairman
         )
