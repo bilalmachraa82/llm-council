@@ -6,6 +6,7 @@ export default function ImageStudio({ onToggleSidebar }) {
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [generatedImages, setGeneratedImages] = useState([]);
+    const [selectedImage, setSelectedImage] = useState(null); // For Zoom Modal
 
     const handleGenerate = async () => {
         if (!prompt.trim() || isLoading) return;
@@ -89,7 +90,7 @@ export default function ImageStudio({ onToggleSidebar }) {
                     <div className="gallery-grid">
                         {generatedImages.map((img, index) => (
                             <div key={img.timestamp} className="gallery-item">
-                                <div className="gallery-image-wrapper">
+                                <div className="gallery-image-wrapper" onClick={() => setSelectedImage(img)}>
                                     <img src={img.url} alt={`Generated ${index + 1}`} />
                                     <button
                                         className="gallery-download-btn"
@@ -106,5 +107,27 @@ export default function ImageStudio({ onToggleSidebar }) {
                 )}
             </div>
         </div>
+
+            {/* Zoom Modal */ }
+    {
+        selectedImage && (
+            <div className="image-zoom-overlay" onClick={() => setSelectedImage(null)}>
+                <div className="image-zoom-content" onClick={e => e.stopPropagation()}>
+                    <img src={selectedImage.url} alt="Zoomed View" />
+                    <button className="close-zoom-btn" onClick={() => setSelectedImage(null)}>×</button>
+                    <div className="zoom-actions">
+                        <span className="zoom-prompt">{selectedImage.prompt}</span>
+                        <button
+                            className="zoom-download-btn"
+                            onClick={() => handleDownload(selectedImage.url, selectedImage.timestamp)}
+                        >
+                            Download HD
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+        </div >
     );
 }

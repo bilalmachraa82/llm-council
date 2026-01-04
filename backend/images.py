@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 
 # Use Flux Pro model for image generation
-IMAGE_MODEL = "black-forest-labs/flux-1.1-pro"
+IMAGE_MODEL = "black-forest-labs/flux-1-schnell"
 
 async def generate_image(prompt: str) -> Optional[Dict[str, Any]]:
     """
