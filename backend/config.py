@@ -92,10 +92,10 @@ def get_models_for_tier(tier: str) -> tuple:
         return (
             [
                 "nousresearch/hermes-3-llama-3.1-405b",          # The "Brain" (Smartest Uncensored)
-                "deepseek/deepseek-chat",                        # The "Dragon" (DeepSeek V3 Uncensored)
-                "sao10k/l3-euryale-70b",                         # The "Roleplayer" (High quality RP)
-                "meta-llama/llama-3.1-70b-instruct",             # The "Reliable" (Strong fallback)
-                "gryphe/mythomax-l2-13b",                        # The "Storyteller" (Bypasses filters well)
+                "microsoft/wizardlm-2-8x22b",                    # The "Archmage" (Uncensored Reasoning)
+                "sao10k/l3-euryale-70b",                         # The "Roleplayer" (NSFW Specialist)
+                "cognitivecomputations/dolphin-mixtral-8x22b",   # The "Hacker" (Zero Filters)
+                "gryphe/mythomax-l2-13b",                        # The "Storyteller" (Creative Freedom)
             ],
             "nousresearch/hermes-3-llama-3.1-405b"  # Uncensored Chairman
         )
