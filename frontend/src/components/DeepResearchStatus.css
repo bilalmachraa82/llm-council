@@ -296,3 +296,123 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* --- PARTY MODE: CONSULTATION OVERLAY --- */
+.consultation-overlay {
+    position: absolute;
+    top: 40%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fade-in 0.5s ease;
+}
+
+.consultation-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 100px;
+    background: linear-gradient(to bottom, var(--neon-red), transparent);
+    z-index: -1;
+}
+
+.consultation-box {
+    background: rgba(10, 10, 12, 0.95);
+    border: 1px solid var(--neon-red);
+    box-shadow: 0 0 30px rgba(255, 72, 0, 0.2);
+    border-radius: 12px;
+    padding: 1.2rem;
+    max-width: 400px;
+    width: 90%;
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    position: relative;
+}
+
+.consultation-box::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--neon-red), transparent, var(--neon-gold));
+    z-index: -1;
+    border-radius: 14px;
+    opacity: 0.5;
+    animation: pulse-border 2s infinite;
+}
+
+.consult-header {
+    font-size: 0.85rem;
+    color: var(--neon-red);
+    text-transform: uppercase;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.consult-question {
+    font-size: 0.95rem;
+    font-style: italic;
+    color: #fff;
+    line-height: 1.4;
+    padding-left: 0.5rem;
+    border-left: 3px solid var(--neon-red);
+}
+
+.consult-answer {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    animation: slide-up 0.3s ease;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-border {
+    0% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0.3;
+    }
+}

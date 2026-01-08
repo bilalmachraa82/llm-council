@@ -18,8 +18,11 @@ from . import storage_prisma as storage
 from . import voice
 from . import auth
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
+from .config import get_council_agents
+from .deep_research import run_deep_research
 from .deep_research import run_deep_research
 from .images import generate_image
+from . import settings_store
 
 # Rate limiting
 limiter = Limiter(key_func=get_remote_address)
@@ -335,11 +338,15 @@ async def send_message(
         title = await generate_conversation_title(req.content)
         await storage.update_conversation_title(conversation_id, title)
 
+    # Fetch agent settings
+    agent_settings = await settings_store.get_user_settings(user_id) if user_id else {}
+
     # Run the 3-stage council process
     stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
         req.content,
         tier=req.tier,
-        dan_mode=req.dan_mode
+        dan_mode=req.dan_mode,
+        agent_settings=agent_settings
     )
 
     # Add assistant message with all stages AND metadata
@@ -398,9 +405,12 @@ async def send_message_stream(
             if is_first_message:
                 title_task = asyncio.create_task(generate_conversation_title(req.content))
 
+            # Fetch agent settings
+            agent_settings = await settings_store.get_user_settings(user_id) if user_id else {}
+
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(req.content, req.tier, req.dan_mode)
+            stage1_results = await stage1_collect_responses(req.content, req.tier, req.dan_mode, agent_settings)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings
@@ -506,9 +516,12 @@ async def send_audio_message(
             if is_first_message:
                 title_task = asyncio.create_task(generate_conversation_title(transcription))
 
+            # Fetch agent settings
+            agent_settings = await settings_store.get_user_settings(user_id) if user_id else {}
+
             # Stage 1
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(transcription, tier)
+            stage1_results = await stage1_collect_responses(transcription, tier, None, agent_settings)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2
@@ -619,6 +632,47 @@ async def api_deep_research_stream(
             "Connection": "keep-alive",
         }
     )
+
+
+@app.get("/api/settings/agents")
+async def get_agent_settings(user_id: str = Depends(require_auth)):
+    """Get agent settings for the current user."""
+    return await settings_store.get_user_settings(user_id)
+
+
+@app.post("/api/settings/agents")
+async def update_agent_settings(
+    settings: Dict[str, Any],
+    user_id: str = Depends(require_auth)
+):
+    """
+    Update agent settings for the current user.
+    Expected format: {"apollo": {"system_prompt": "...", ...}, ...}
+    """
+    return await settings_store.update_user_settings(user_id, settings)
+
+
+@app.get("/api/agents")
+async def get_active_agents(user_id: str = Depends(get_optional_user_id)):
+    """
+    Get all active agents with user settings applied.
+    Returns: Dict of agent_key -> agent_config
+    """
+    # Get defaults
+    agents = get_council_agents()
+    
+    # Apply user settings if authenticated
+    if user_id:
+        user_settings = await settings_store.get_user_settings(user_id)
+        # Deep copy to avoid mutating defaults in memory
+        import copy
+        agents = copy.deepcopy(agents)
+        
+        for key, config in user_settings.items():
+            if key in agents:
+                agents[key].update(config)
+                
+    return agents
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import ChatInterface from './components/ChatInterface';
 import ImageStudio from './components/ImageStudio';
 import LandingPage from './components/LandingPage';
 import ErrorBoundary from './components/ErrorBoundary';
+import AgentSettings from './components/AgentSettings';
 import { api } from './api';
 import './App.css';
 import VoiceInput from './components/VoiceInput';
@@ -18,6 +19,7 @@ function App() {
   const [danMode, setDanMode] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState('chat'); // 'chat' or 'studio'
+  const [showSettings, setShowSettings] = useState(false);
   const [error, setError] = useState(null); // User-facing error messages
 
   // Helper function to get user-friendly error message
@@ -357,6 +359,7 @@ function App() {
           onDanModeChange={setDanMode}
           activeView={activeView}
           onViewChange={setActiveView}
+          onOpenSettings={() => setShowSettings(true)}
         />
         <main className="main-content">
           {error && (
@@ -373,11 +376,13 @@ function App() {
               onVoiceMessage={handleVoiceMessage}
               onGenerateImage={handleGenerateImage}
               onDeepResearch={handleDeepResearch}
+              onOpenSettings={() => setShowSettings(true)}
               isLoading={isLoading}
             />
           ) : (
             <ImageStudio onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
           )}
+          {showSettings && <AgentSettings onClose={() => setShowSettings(false)} />}
         </main>
       </div>
     </ErrorBoundary>

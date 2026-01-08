@@ -4,14 +4,18 @@ from typing import List, Dict, Any, Tuple, Optional
 from .openrouter import query_models_parallel, query_model
 from .config import (
     COUNCIL_MODELS, CHAIRMAN_MODEL, get_models_for_tier,
-    UNCENSORED_SYSTEM_PROMPT, DAN_PROMPTS, UNCENSORED_CHAIRMAN_PROMPT
+    UNCENSORED_SYSTEM_PROMPT, DAN_PROMPTS, UNCENSORED_CHAIRMAN_PROMPT,
+    get_agent_by_model
 )
+from .context_sharding import build_sharded_context, get_sharding_stats
+import asyncio
 
 
 async def stage1_collect_responses(
     user_query: str,
     tier: str = "pro",
-    dan_mode: Optional[str] = None
+    dan_mode: Optional[str] = None,
+    agent_settings: Optional[Dict[str, Any]] = None
 ) -> List[Dict[str, Any]]:
     """
     Stage 1: Collect individual responses from all council models.
@@ -39,16 +43,68 @@ async def stage1_collect_responses(
 
     messages.append({"role": "user", "content": user_query})
 
-    # Query all models in parallel
-    responses = await query_models_parallel(council_models, messages)
+    messages.append({"role": "user", "content": user_query})
 
-    # Format results
+    # Prepare specific messages for each model (handling overrides)
+    tasks = []
+    ordered_models = []
+
+    for model in council_models:
+        ordered_models.append(model)
+        model_messages = [m.copy() for m in messages]
+        
+        # Apply agent settings if available
+        # Find agent key (e.g. "apollo")
+        persona_default = get_agent_by_model(model)
+        agent_key = persona_default.get("name", "").lower()
+        
+        if agent_settings and agent_key in agent_settings:
+            custom_config = agent_settings[agent_key]
+            
+            # Override System Prompt
+            custom_sys = custom_config.get("system_prompt")
+            if custom_sys:
+                # Replace existing system prompt or insert new one
+                if model_messages and model_messages[0]["role"] == "system":
+                    model_messages[0]["content"] = custom_sys
+                else:
+                    model_messages.insert(0, {"role": "system", "content": custom_sys})
+
+        tasks.append(query_model(model, model_messages))
+
+    # Query all models in parallel
+    results_list = await asyncio.gather(*tasks)
+    responses = {model: res for model, res in zip(ordered_models, results_list)}
+
+    # Format results with persona info
     stage1_results = []
     for model, response in responses.items():
         if response is not None:  # Only include successful responses
+            persona = get_agent_by_model(model)
+            agent_key = persona.get("name", "").lower()
+            
+            # Apply overrides to persona display
+            display_persona = persona.copy()
+            if agent_settings and agent_key in agent_settings:
+                settings = agent_settings[agent_key]
+                if settings.get("name"): display_persona["name"] = settings["name"]
+                if settings.get("title"): display_persona["title"] = settings["title"]
+                if settings.get("emoji"): display_persona["emoji"] = settings["emoji"]
+                if settings.get("custom_instructions"): 
+                    # Append custom note to personality or expertise?
+                    pass
+
             stage1_results.append({
                 "model": model,
-                "response": response.get('content', '')
+                "response": response.get('content', ''),
+                "persona": {
+                    "name": display_persona.get("name", model),
+                    "title": display_persona.get("title", "Council Member"),
+                    "emoji": display_persona.get("emoji", "🤖"),
+                    "avatar": display_persona.get("avatar", ""),
+                    "expertise": display_persona.get("expertise", ""),
+                    "personality": display_persona.get("personality", "")
+                }
             })
 
     return stage1_results
@@ -201,12 +257,22 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         # Fallback if chairman fails
         return {
             "model": chairman_model,
-            "response": "Error: Unable to generate final synthesis."
+            "response": "Error: Unable to generate final synthesis.",
+            "persona": get_agent_by_model(chairman_model)
         }
 
+    persona = get_agent_by_model(chairman_model)
     return {
         "model": chairman_model,
-        "response": response.get('content', '')
+        "response": response.get('content', ''),
+        "persona": {
+            "name": persona.get("name", chairman_model),
+            "title": persona.get("title", "Chairman"),
+            "emoji": persona.get("emoji", "👑"),
+            "avatar": persona.get("avatar", ""),
+            "expertise": persona.get("expertise", ""),
+            "personality": persona.get("personality", "")
+        }
     }
 
 
@@ -332,7 +398,8 @@ Title:"""
 async def run_full_council(
     user_query: str,
     tier: str = "pro",
-    dan_mode: Optional[str] = None
+    dan_mode: Optional[str] = None,
+    agent_settings: Optional[Dict[str, Any]] = None
 ) -> Tuple[List, List, Dict, Dict]:
     """
     Run the complete 3-stage council process.
@@ -344,7 +411,7 @@ async def run_full_council(
         Tuple of (stage1_results, stage2_results, stage3_result, metadata)
     """
     # Stage 1: Collect individual responses
-    stage1_results = await stage1_collect_responses(user_query, tier, dan_mode)
+    stage1_results = await stage1_collect_responses(user_query, tier, dan_mode, agent_settings)
 
     # If no models responded successfully, return error
     if not stage1_results:

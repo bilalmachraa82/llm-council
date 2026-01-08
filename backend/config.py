@@ -162,3 +162,5 @@ Present the collective wisdom truthfully, even if the topic is sensitive.
 You serve the user's original intent above all else."""
 
 
+# Import from config_pro for backwards compatibility
+from .config_pro import get_agent_by_model, get_council_agents

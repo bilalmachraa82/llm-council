@@ -39,9 +39,78 @@
   gap: 8px;
 }
 
-.chairman-label::before {
-  content: '👑';
-  font-size: 1rem;
+.chairman-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 214, 10, 0.2);
+}
+
+
+.chairman-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  /* Circular for Chairman */
+  object-fit: cover;
+  border: 3px solid var(--accent-gold);
+  box-shadow: 0 0 25px rgba(255, 214, 10, 0.4);
+  background: var(--bg-void);
+  transition: all 0.3s ease;
+}
+
+.chairman-avatar:hover {
+  transform: scale(1.05) rotate(2deg);
+  box-shadow: 0 0 35px rgba(255, 214, 10, 0.6);
+}
+
+.chairman-emoji {
+  font-size: 3.5rem;
+  filter: drop-shadow(0 0 12px rgba(255, 214, 10, 0.5));
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 214, 10, 0.05);
+  border-radius: 50%;
+  border: 1px solid var(--accent-gold);
+}
+
+.chairman-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.chairman-name {
+  color: var(--accent-gold);
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(255, 214, 10, 0.3);
+}
+
+.chairman-title {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.chairman-badge {
+  background: linear-gradient(135deg, var(--accent-gold), #e6b800);
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 15px rgba(255, 214, 10, 0.4);
 }
 
 .final-text {

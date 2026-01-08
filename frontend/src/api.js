@@ -223,4 +223,41 @@ export const api = {
       }
     }
   },
+
+
+  /**
+   * Get active agents with user settings.
+   * @param {string} token - Auth token
+   */
+  async getAgents(token) {
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_BASE}/api/agents`, {
+      method: 'GET',
+      headers
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch agents');
+    return response.json();
+  },
+
+  /**
+   * Update agent settings.
+   * @param {Object} settings - {"agent_key": {...}}
+   * @param {string} token - Auth token
+   */
+  async updateAgentSettings(settings, token) {
+    const response = await fetch(`${API_BASE}/api/settings/agents`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(settings)
+    });
+
+    if (!response.ok) throw new Error('Failed to update settings');
+    return response.json();
+  }
 };

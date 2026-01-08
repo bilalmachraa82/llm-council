@@ -11,6 +11,7 @@ import './DeepResearchStatus.css';
  */
 export default function DeepResearchStatus({ events, isComplete }) {
     const [activePhase, setActivePhase] = useState('idle'); // idle, planning, council, skeptic, editor, complete
+    const [consultation, setConsultation] = useState(null); // { initiator, target, question, answer }
     const [logs, setLogs] = useState([]);
     const [streamData, setStreamData] = useState({ gemini: '', perplexity: '', grok: '' });
     const terminalRef = useRef(null);
@@ -42,6 +43,23 @@ export default function DeepResearchStatus({ events, isComplete }) {
             if (lastEvent.data.debug_streams) {
                 setStreamData(lastEvent.data.debug_streams);
             }
+        }
+
+        // Capture Consultation Events
+        if (lastEvent.type === 'consultation') {
+            setActivePhase('skeptic');
+            setConsultation({
+                initiator: lastEvent.data.initiator,
+                target: lastEvent.data.target,
+                question: lastEvent.data.question
+            });
+        }
+
+        if (lastEvent.type === 'consultation_response') {
+            setConsultation(prev => ({
+                ...prev,
+                answer: lastEvent.data.answer
+            }));
         }
 
         // Auto-scroll terminal
@@ -102,6 +120,24 @@ export default function DeepResearchStatus({ events, isComplete }) {
                 </div>
 
                 <div className="pipeline-connector"></div>
+
+                {/* CONSULTATION OVERLAY (If active) */}
+                {consultation && (
+                    <div className="consultation-overlay">
+                        <div className="consultation-line"></div>
+                        <div className="consultation-box">
+                            <div className="consult-header">
+                                <span className="icon">🛡️</span> Skeptic asks <strong>{consultation.target}</strong>:
+                            </div>
+                            <div className="consult-question">"{consultation.question}"</div>
+                            {consultation.answer && (
+                                <div className="consult-answer">
+                                    <span className="icon">↪️</span> <strong>Answer:</strong> {consultation.answer.substring(0, 120)}...
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* PHASE 3: SKEPTIC */}
                 <div className="node-row">

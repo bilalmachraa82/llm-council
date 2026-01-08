@@ -18,6 +18,7 @@ export default function Sidebar({
   onDanModeChange,
   activeView,
   onViewChange,
+  onOpenSettings,
 }) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, isAuthenticated, signOut } = useAuth();
@@ -95,6 +96,9 @@ export default function Sidebar({
         {/* Auth Section */}
         <div className="sidebar-footer">
           <div className="footer-links">
+            <button className="footer-link" style={{ display: 'flex', gap: '6px', alignItems: 'center' }} onClick={onOpenSettings}>
+              <span>⚙️</span> Expert Settings
+            </button>
             <button className="footer-link">About System</button>
           </div>
           {isAuthenticated ? (

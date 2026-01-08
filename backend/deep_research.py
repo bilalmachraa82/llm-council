@@ -18,7 +18,8 @@ from .openrouter import query_model
 from .config_pro import (
     DEEP_RESEARCH_MODELS, 
     PERPLEXITY_API_KEY, 
-    OPENROUTER_API_KEY
+    OPENROUTER_API_KEY,
+    CONSULTATION_PROMPT
 )
 
 # -----------------------------------------------------------------------------
@@ -139,6 +140,72 @@ async def search_wildcard_grok(query: str) -> Dict[str, Any]:
             "content": f"Error accessing Grok: {str(e)}",
             "raw_sources": []
         }
+
+# -----------------------------------------------------------------------------
+# 1.5. Party Mode - Consultation Logic
+# -----------------------------------------------------------------------------
+
+async def check_conflict(council_context: str) -> Dict[str, Any]:
+    """
+    Asks the Skeptic to identify if a consultation is needed.
+    """
+    prompt = CONSULTATION_PROMPT.format(findings=council_context)
+    
+    try:
+        resp = await query_model(DEEP_RESEARCH_MODELS["skeptic"], [
+            {"role": "user", "content": prompt}
+        ])
+        
+        # Parse JSON from response
+        content = resp['content'].replace('```json', '').replace('```', '')
+        # Simple cleanup for common JSON issues
+        if "{" in content:
+            content = content[content.find("{"):content.rfind("}")+1]
+            
+        decision = json.loads(content)
+        return decision
+    except Exception as e:
+        print(f"⚠️ Skeptic Consultation Error: {e}")
+        return {"has_conflict": False}
+
+async def run_consultation(target: str, question: str, original_query: str) -> str:
+    """
+    Executes a targeted query to a specific agent to resolve a conflict.
+    """
+    
+    if target == "velocity":
+        # velocity uses gemini flash + ddg
+        # We'll do a simplified sub-query
+        res = await search_velocity_gemini(f"{original_query} . SPECIFIC FOCUS: {question}")
+        return res['content']
+        
+    elif target == "citation":
+        # citation uses perplexity
+        if not PERPLEXITY_API_KEY:
+            return "Perplexity API Key missing."
+        
+        client = AsyncOpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
+        try:
+            response = await client.chat.completions.create(
+                model=DEEP_RESEARCH_MODELS["citation_search"],
+                messages=[
+                    {"role": "system", "content": "You are verifying a specific claim. Be precise."},
+                    {"role": "user", "content": f"Context: {original_query}\n\nSpecific Verification Needed: {question}"}
+                ]
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Consultation Error: {str(e)}"
+            
+    elif target == "wildcard":
+        # wildcard uses grok
+        res = await query_model(DEEP_RESEARCH_MODELS["wildcard_search"], [
+            {"role": "system", "content": "You are providing a specific alternative perspective."},
+            {"role": "user", "content": f"Context: {original_query}\n\nSpecific Insight Needed: {question}"}
+        ])
+        return res['content']
+    
+    return "Unknown agent target."
 
 # -----------------------------------------------------------------------------
 # 2. Agent Prompts
@@ -272,6 +339,46 @@ async def run_deep_research(user_query: str):
         {"role": "system", "content": AGENTS["skeptic"]["system"]},
         {"role": "user", "content": f"Analyze these reports for: '{optimized_query}'\n\n{council_context}"}
     ])
+    
+    # --- PHASE 3.5: PARTY MODE (CONSULTATION) ---
+    # The Skeptic decides if we need to call someone back to the stand.
+    
+    consultation_log = ""
+    
+    # Check for conflicts
+    decision = await check_conflict(council_context)
+    
+    if decision.get("has_conflict"):
+        target_agent = decision.get("target_agent", "velocity")
+        question = decision.get("question", "Verification needed.")
+        
+        yield {"type": "status", "msg": f"🗣️ Skeptic -> {target_agent.title()}: '{question}'"}
+        yield {
+            "type": "consultation", 
+            "data": {
+                "initiator": "skeptic",
+                "target": target_agent,
+                "question": question
+            }
+        }
+        
+        # Run the specific agent again
+        yield {"type": "status", "msg": f"⏳ {target_agent.title()} is responding..."}
+        
+        answer = await run_consultation(target_agent, question, optimized_query)
+        
+        consultation_log = f"\n\n=== CONSULTATION ROUND ===\nSkeptic asked {target_agent}: {question}\nAnswer: {answer}\n"
+        
+        yield {
+            "type": "consultation_response",
+            "data": {
+                "target": target_agent,
+                "answer": answer
+            }
+        }
+        
+        # Append to context for the editor
+        council_context += consultation_log
     
     # --- PHASE 4: THE EDITOR ---
     yield {"type": "status", "msg": "✍️ Chief Editor: Synthesizing Final Council Dossier..."}

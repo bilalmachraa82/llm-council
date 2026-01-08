@@ -5,6 +5,7 @@ import Stage2 from './Stage2';
 import Stage3 from './Stage3';
 import VoiceInput from './VoiceInput';
 import DeepResearchStatus from './DeepResearchStatus'; // Import the new component
+import CouncilFlow from './CouncilFlow'; // Import the flow visualization
 import './ChatInterface.css';
 
 export default function ChatInterface({
@@ -15,9 +16,11 @@ export default function ChatInterface({
   onDeepResearch, // New prop for handling Deep Research
   isLoading,
   onToggleSidebar,
+  onOpenSettings, // Callback to open settings
 }) {
   const [input, setInput] = useState('');
   const [showSystemInfo, setShowSystemInfo] = useState(false);
+  // const [showSettings, setShowSettings] = useState(false);  <-- REMOVED
   const [isDeepResearchMode, setIsDeepResearchMode] = useState(false); // Toggle state
   const messagesEndRef = useRef(null);
 
@@ -79,7 +82,7 @@ export default function ChatInterface({
       <div className="mobile-header">
         <button className="hamburger-btn" onClick={onToggleSidebar}>☰</button>
         <span className="brand-mobile">AiParaTi Council</span>
-        {/* <button className="info-btn" onClick={toggleSystemInfo}>ℹ️</button> */}
+        <button className="settings-btn" onClick={onOpenSettings} title="Agent Settings">⚙️</button>
       </div>
 
       <div className="messages-container">
@@ -134,6 +137,17 @@ export default function ChatInterface({
               ) : (
                 <div className="assistant-message">
                   <div className="message-label">LLM Council</div>
+
+                  {/* Standard Council Flow Visualization */}
+                  {/* Show flow if it's NOT deep research, and we have at least loading state or stage data */}
+                  {!msg.isDeepResearch && (msg.loading || msg.stage1) && (
+                    <CouncilFlow
+                      stage1={msg.stage1}
+                      stage2={msg.stage2}
+                      stage3={msg.stage3}
+                      isLoading={isLoading}
+                    />
+                  )}
 
                   {/* Deep Research Component */}
                   {msg.isDeepResearch && (

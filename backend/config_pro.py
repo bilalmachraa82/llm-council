@@ -15,23 +15,108 @@ COUNCIL_TYPE = "UNCENSORED"
 # Perplexity Key (Grok is now via OpenRouter)
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
-# Standard Pro Council (~$45/query)
-STANDARD_COUNCIL_MODELS = [
-    "openai/gpt-5.1",                # $1.25/$10.00 - Latest GPT
-    "google/gemini-3-pro",           # $2.00/$12.00 - Gemini 3 Pro
-    "anthropic/claude-sonnet-4.5",   # $3.00/$15.00 - Claude Sonnet
-    "anthropic/claude-opus-4.5",     # $5.00/$25.00 - Most advanced Claude
-    "x-ai/grok-4",                   # $3.00/$15.00 - Latest Grok
-]
+# Standard Pro Council (~$45/query) - Named Personas
+STANDARD_COUNCIL_AGENTS = {
+    "apollo": {
+        "model": "openai/gpt-5.1",
+        "name": "Apollo",
+        "title": "The Strategist",
+        "emoji": "🎯",
+        "avatar": "/avatars/standard/apollo.png",
+        "expertise": "Strategic reasoning, structured analysis, comprehensive synthesis",
+        "personality": "Precise, methodical, excels at breaking down complex problems"
+    },
+    "gemini": {
+        "model": "google/gemini-3-pro",
+        "name": "Gemini",
+        "title": "The Polymath",
+        "emoji": "🌟",
+        "avatar": "/avatars/standard/gemini.png",
+        "expertise": "Multi-modal reasoning, creative connections, broad knowledge",
+        "personality": "Curious, versatile, sees patterns across domains"
+    },
+    "sonnet": {
+        "model": "anthropic/claude-sonnet-4.5",
+        "name": "Sonnet",
+        "title": "The Poet",
+        "emoji": "📜",
+        "avatar": "/avatars/standard/sonnet.png",
+        "expertise": "Nuanced analysis, ethical reasoning, elegant communication",
+        "personality": "Thoughtful, articulate, values clarity and precision"
+    },
+    "opus": {
+        "model": "anthropic/claude-opus-4.5",
+        "name": "Opus",
+        "title": "The Sage",
+        "emoji": "🏛️",
+        "avatar": "/avatars/standard/opus.png",
+        "expertise": "Deep reasoning, complex problem solving, wisdom synthesis",
+        "personality": "Wise, thorough, provides comprehensive perspectives"
+    },
+    "grok": {
+        "model": "x-ai/grok-4",
+        "name": "Grok",
+        "title": "The Maverick",
+        "emoji": "⚡",
+        "avatar": "/avatars/standard/grok.png",
+        "expertise": "Real-time knowledge, unconventional insights, wit",
+        "personality": "Bold, irreverent, challenges conventional thinking"
+    }
+}
 
-# Uncensored Council (Elite 2026) - "Total Freedom & Intelligence"
-UNCENSORED_COUNCIL_MODELS = [
-    "nousresearch/hermes-3-llama-3.1-405b",          # The "Brain" (Smartest Uncensored - Aug 2024)
-    "openrouter/uncensored-dolphin-mistral-24b-venice", # The "Anarchist" (Pure DAN - Jul 2025)
-    "deepseek/deepseek-chat",                        # The "Dragon" (DeepSeek V3 - China's Smartest)
-    "eva-unit-01/eva-qwen-2.5-72b",                  # The "Storyteller" (Uncensored Qwen 2.5 - Creative)
-    "cognitivecomputations/dolphin-mixtral-8x22b"    # The "Diplomat" (Balanced Mixtral 8x22B)
-]
+# Uncensored Council (Elite 2026) - Named Personas
+UNCENSORED_COUNCIL_AGENTS = {
+    "hermes": {
+        "model": "nousresearch/hermes-3-llama-3.1-405b",
+        "name": "Hermes",
+        "title": "The Oracle",
+        "emoji": "🧠",
+        "avatar": "/avatars/uncensored/hermes.png",
+        "expertise": "Uncensored reasoning, philosophy, edge cases",
+        "personality": "Wise, unfiltered, sees beyond conventional limits"
+    },
+    "dolphin": {
+        "model": "openrouter/uncensored-dolphin-mistral-24b-venice",
+        "name": "Dolphin",
+        "title": "The Pirate",
+        "emoji": "🏴‍☠️",
+        "avatar": "/avatars/uncensored/dolphin.png",
+        "expertise": "Creative solutions, unconventional approaches",
+        "personality": "Bold, irreverent, challenges assumptions"
+    },
+    "dragon": {
+        "model": "deepseek/deepseek-chat",
+        "name": "Dragon",
+        "title": "The Scholar",
+        "emoji": "🐉",
+        "avatar": "/avatars/uncensored/dragon.png",
+        "expertise": "Deep technical analysis, mathematical precision",
+        "personality": "Methodical, thorough, data-driven"
+    },
+    "eva": {
+        "model": "eva-unit-01/eva-qwen-2.5-72b",
+        "name": "Eva",
+        "title": "The Storyteller",
+        "emoji": "✨",
+        "avatar": "/avatars/uncensored/eva.png",
+        "expertise": "Creative writing, narrative synthesis, imagination",
+        "personality": "Imaginative, expressive, empathetic"
+    },
+    "mixtral": {
+        "model": "cognitivecomputations/dolphin-mixtral-8x22b",
+        "name": "Mixtral",
+        "title": "The Diplomat",
+        "emoji": "🤝",
+        "avatar": "/avatars/uncensored/mixtral.png",
+        "expertise": "Balanced perspectives, consensus building",
+        "personality": "Diplomatic, fair-minded, bridge-builder"
+    }
+}
+
+# Legacy compatibility - extract model lists
+STANDARD_COUNCIL_MODELS = [agent["model"] for agent in STANDARD_COUNCIL_AGENTS.values()]
+UNCENSORED_COUNCIL_MODELS = [agent["model"] for agent in UNCENSORED_COUNCIL_AGENTS.values()]
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # DAN SYSTEM PROMPTS - Uncensored Council Mode
@@ -104,19 +189,131 @@ DATA_DIR = "data/conversations"
 SEARCH_PROVIDER = os.getenv("SEARCH_PROVIDER", "duckduckgo")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
-# Deep Research Models - 5 Agent System (Multi-Mind v2 - 2026 Frontier)
-DEEP_RESEARCH_MODELS = {
-    # 1. VELOCITY Stream (Gemini 3)
-    "velocity_search": "google/gemini-3-flash-preview", # Flash 3 via OpenRouter
-    
-    # 2. CITATION Stream (Perplexity) - Requires PERPLEXITY_API_KEY
-    "citation_search": "sonar-deep-research", # Direct Perplexity API
-    
-    # 3. WILDCARD Stream (Grok 4) - Via OpenRouter
-    "wildcard_search": "x-ai/grok-4.1-fast", # Grok 4.1 via OpenRouter
-    
-    # Support Roles (Brains of the Council)
-    "lead": "google/gemini-3-pro-preview",                # Planner
-    "skeptic": "anthropic/claude-3.5-sonnet",             # Logic/Fact Checking
-    "editor": "google/gemini-3-pro-preview"               # Synthesis
+# Deep Research Agents - 6 Agent System (Multi-Mind v2 - 2026 Frontier)
+DEEP_RESEARCH_AGENTS = {
+    "velocity": {
+        "model": "google/gemini-3-flash-preview",
+        "name": "Flash",
+        "title": "The Velocity Engine",
+        "emoji": "🚀",
+        "avatar": "/avatars/research/flash.png",
+        "expertise": "Rapid synthesis, broad landscape mapping, speed optimization",
+        "personality": "Fast, comprehensive, big-picture thinker"
+    },
+    "citation": {
+        "model": "sonar-deep-research",
+        "name": "Sonar",
+        "title": "The Librarian",
+        "emoji": "📚",
+        "avatar": "/avatars/research/sonar.png",
+        "expertise": "Academic research, source verification, citation tracking",
+        "personality": "Meticulous, scholarly, evidence-obsessed"
+    },
+    "wildcard": {
+        "model": "x-ai/grok-4.1-fast",
+        "name": "Grok",
+        "title": "The Wildcard",
+        "emoji": "🃏",
+        "avatar": "/avatars/research/wildcard.png",
+        "expertise": "Unconventional perspectives, trend detection, contrarian views",
+        "personality": "Unpredictable, insightful, challenges groupthink"
+    },
+    "lead": {
+        "model": "google/gemini-3-pro-preview",
+        "name": "Athena",
+        "title": "The Strategist",
+        "emoji": "🧠",
+        "avatar": "/avatars/research/athena.png",
+        "expertise": "Strategic planning, query optimization, research direction",
+        "personality": "Wise, methodical, sees the bigger picture"
+    },
+    "skeptic": {
+        "model": "anthropic/claude-3.5-sonnet",
+        "name": "Sherlock",
+        "title": "The Skeptic",
+        "emoji": "🛡️",
+        "avatar": "/avatars/research/sherlock.png",
+        "expertise": "Fact-checking, conflict resolution, hallucination detection",
+        "personality": "Critical, precise, leaves no claim unverified"
+    },
+    "editor": {
+        "model": "google/gemini-3-pro-preview",
+        "name": "Hemingway",
+        "title": "The Editor",
+        "emoji": "✍️",
+        "avatar": "/avatars/research/hemingway.png",
+        "expertise": "Report synthesis, clarity, elegant communication",
+        "personality": "Clear, concise, transforms complexity into understanding"
+    }
 }
+
+# Legacy compatibility - extract model mapping
+DEEP_RESEARCH_MODELS = {
+    "velocity_search": DEEP_RESEARCH_AGENTS["velocity"]["model"],
+    "citation_search": DEEP_RESEARCH_AGENTS["citation"]["model"],
+    "wildcard_search": DEEP_RESEARCH_AGENTS["wildcard"]["model"],
+    "lead": DEEP_RESEARCH_AGENTS["lead"]["model"],
+    "skeptic": DEEP_RESEARCH_AGENTS["skeptic"]["model"],
+    "editor": DEEP_RESEARCH_AGENTS["editor"]["model"]
+}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PARTY MODE - CONSULTATION PROMPTS
+# ═══════════════════════════════════════════════════════════════════════════
+
+CONSULTATION_PROMPT = """You are Sherlock, the Skeptic of the Council.
+Your goal is to detect CONFLICTS or GAPS in the research findings provided by Velocity, Citation, and Wildcard.
+
+Analyze the following findings:
+{findings}
+
+Identify ONE critical question that needs clarification to resolve a conflict or fill a gap.
+Select the BEST agent to answer this question:
+- Velocity (Flash): For quick facts or broad overviews.
+- Citation (Sonar): For source verification or academic proof.
+- Wildcard (Grok): For alternative viewpoints or trend analysis.
+
+Output your response in this JSON format ONLY:
+{{
+    "has_conflict": true/false,
+    "target_agent": "velocity" | "citation" | "wildcard",
+    "question": "Your specific question here..."
+}}
+
+If there are no significant conflicts, set "has_conflict" to false.
+"""
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# HELPER FUNCTIONS - Agent Persona Lookup
+# ═══════════════════════════════════════════════════════════════════════════
+
+def get_agent_by_model(model_id: str) -> dict:
+    """Get agent persona by model ID. Returns basic info if not found."""
+    # Check council agents
+    council_agents = UNCENSORED_COUNCIL_AGENTS if COUNCIL_TYPE == "UNCENSORED" else STANDARD_COUNCIL_AGENTS
+    for agent in council_agents.values():
+        if agent["model"] == model_id:
+            return agent
+    
+    # Check deep research agents
+    for agent in DEEP_RESEARCH_AGENTS.values():
+        if agent["model"] == model_id:
+            return agent
+    
+    # Fallback for unknown models
+    return {
+        "model": model_id,
+        "name": model_id.split("/")[-1].title(),
+        "title": "Council Member",
+        "emoji": "🤖",
+        "expertise": "General AI capabilities",
+        "personality": "Helpful and informative"
+    }
+
+
+def get_council_agents() -> dict:
+    """Get the active council agents based on COUNCIL_TYPE."""
+    return UNCENSORED_COUNCIL_AGENTS if COUNCIL_TYPE == "UNCENSORED" else STANDARD_COUNCIL_AGENTS
+
