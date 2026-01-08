@@ -255,12 +255,6 @@ async def root():
     return {"status": "ok", "service": "LLM Council API"}
 
 
-@app.get("/api/debug/routes")
-async def debug_routes():
-    """List all registered routes for debugging."""
-    return [{"path": route.path, "name": route.name, "methods": list(route.methods)} for route in app.routes]
-
-
 @app.get("/api/conversations", response_model=List[ConversationMetadata])
 @limiter.limit("60/minute")
 async def list_conversations(
