@@ -2,14 +2,17 @@
 
 import os
 import shutil
-from fastapi import FastAPI, HTTPException, UploadFile, File, Header
+from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Dict, Any, Optional
 import uuid
 import json
 import asyncio
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from . import storage_prisma as storage
 from . import voice
@@ -18,7 +21,11 @@ from .council import run_full_council, generate_conversation_title, stage1_colle
 from .deep_research import run_deep_research
 from .images import generate_image
 
+# Rate limiting
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="LLM Council API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS origins from environment or defaults
 base_origins = [
@@ -45,7 +52,7 @@ vercel_pattern = r"https://.*\.vercel\.app"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,  # Use explicit list instead of wildcard
     allow_origin_regex=vercel_pattern,
     allow_credentials=True,
     allow_methods=["*"],
@@ -64,10 +71,39 @@ class SendMessageRequest(BaseModel):
     tier: str = "pro"  # "pro" or "budget"
     dan_mode: Optional[str] = None  # Specific DAN persona key (e.g., "classic", "machiavelli")
 
+    @field_validator('content')
+    @classmethod
+    def validate_content(cls, v: str) -> str:
+        """Validate content length and sanitize."""
+        if not v or not v.strip():
+            raise ValueError('Content cannot be empty')
+        if len(v) > 10000:
+            raise ValueError('Content cannot exceed 10000 characters')
+        return v.strip()
+
+    @field_validator('tier')
+    @classmethod
+    def validate_tier(cls, v: str) -> str:
+        """Validate tier is one of the allowed values."""
+        allowed_tiers = {"pro", "budget", "uncensored"}
+        if v not in allowed_tiers:
+            raise ValueError(f'Tier must be one of: {", ".join(allowed_tiers)}')
+        return v
+
 
 class ImageGenerationRequest(BaseModel):
     """Request to generate an image."""
     prompt: str
+
+    @field_validator('prompt')
+    @classmethod
+    def validate_prompt(cls, v: str) -> str:
+        """Validate prompt length."""
+        if not v or not v.strip():
+            raise ValueError('Prompt cannot be empty')
+        if len(v) > 1000:
+            raise ValueError('Prompt cannot exceed 1000 characters')
+        return v.strip()
 
 
 class ConversationMetadata(BaseModel):
@@ -91,6 +127,19 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
 
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        """Validate password strength."""
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters long')
+        # Check for at least one letter and one number
+        has_letter = any(c.isalpha() for c in v)
+        has_digit = any(c.isdigit() for c in v)
+        if not (has_letter and has_digit):
+            raise ValueError('Password must contain both letters and numbers')
+        return v
+
 
 class LoginRequest(BaseModel):
     email: str
@@ -107,6 +156,41 @@ class UserResponse(BaseModel):
     email: str
     credits: int
     plan: str
+
+
+# ============== Helper Functions ==============
+
+def validate_uuid(uuid_string: str) -> bool:
+    """Validate that a string is a valid UUID."""
+    try:
+        uuid.UUID(uuid_string)
+        return True
+    except ValueError:
+        return False
+
+
+async def get_optional_user_id(authorization: Optional[str] = Header(None)) -> Optional[str]:
+    """
+    Dependency to get user_id from Authorization header if present.
+    Returns None for unauthenticated requests (for backwards compatibility).
+    """
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    return await auth.get_current_user_id(authorization)
+
+
+async def require_auth(authorization: Optional[str] = Header(None)) -> str:
+    """
+    Dependency that requires authentication.
+    Raises HTTPException if not authenticated.
+    """
+    user_id = await auth.get_current_user_id(authorization)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required"
+        )
+    return user_id
 
 
 @app.post("/auth/register", response_model=AuthResponse)
@@ -171,64 +255,107 @@ async def root():
     return {"status": "ok", "service": "LLM Council API"}
 
 
+@app.get("/api/debug/routes")
+async def debug_routes():
+    """List all registered routes for debugging."""
+    return [{"path": route.path, "name": route.name, "methods": list(route.methods)} for route in app.routes]
+
+
 @app.get("/api/conversations", response_model=List[ConversationMetadata])
-async def list_conversations():
-    """List all conversations (metadata only)."""
-    return await storage.list_conversations()
+@limiter.limit("60/minute")
+async def list_conversations(
+    request,
+    user_id: Optional[str] = Depends(get_optional_user_id)
+):
+    """List all conversations (metadata only) - scoped to user if authenticated."""
+    return await storage.list_conversations(user_id=user_id)
 
 
 @app.post("/api/conversations", response_model=Conversation)
-async def create_conversation(request: CreateConversationRequest):
-    """Create a new conversation."""
+@limiter.limit("20/minute")
+async def create_conversation(
+    request,
+    req: CreateConversationRequest,
+    user_id: Optional[str] = Depends(get_optional_user_id)
+):
+    """Create a new conversation - associates with user if authenticated."""
     conversation_id = str(uuid.uuid4())
-    conversation = await storage.create_conversation(conversation_id)
+    conversation = await storage.create_conversation(conversation_id, user_id=user_id)
     return conversation
 
 
 @app.get("/api/conversations/{conversation_id}", response_model=Conversation)
-async def get_conversation(conversation_id: str):
+@limiter.limit("60/minute")
+async def get_conversation(
+    request,
+    conversation_id: str,
+    user_id: Optional[str] = Depends(get_optional_user_id)
+):
     """Get a specific conversation with all its messages."""
+    if not validate_uuid(conversation_id):
+        raise HTTPException(status_code=400, detail="Invalid conversation ID format")
+
     conversation = await storage.get_conversation(conversation_id)
     if conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
+
+    # If user is authenticated, check access
+    if user_id and not await storage.verify_conversation_access(conversation_id, user_id):
+        raise HTTPException(status_code=403, detail="Access denied")
+
     return conversation
 
 
 @app.post("/api/conversations/{conversation_id}/message")
-async def send_message(conversation_id: str, request: SendMessageRequest):
+@limiter.limit("10/minute")
+async def send_message(
+    request,
+    conversation_id: str,
+    req: SendMessageRequest,
+    user_id: Optional[str] = Depends(get_optional_user_id)
+):
     """
     Send a message and run the 3-stage council process.
     Returns the complete response with all stages.
     """
+    if not validate_uuid(conversation_id):
+        raise HTTPException(status_code=400, detail="Invalid conversation ID format")
+
     # Check if conversation exists
-    conversation = await storage.get_conversation(conversation_id)
-    if conversation is None:
+    db_conversation = await storage.get_conversation(conversation_id)
+    if db_conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
+    # If user is authenticated, check access
+    if user_id and not await storage.verify_conversation_access(conversation_id, user_id):
+        raise HTTPException(status_code=403, detail="Access denied")
+
     # Check if this is the first message
-    is_first_message = len(conversation["messages"]) == 0
+    is_first_message = len(db_conversation["messages"]) == 0
 
     # Add user message
-    await storage.add_user_message(conversation_id, request.content)
+    await storage.add_user_message(conversation_id, req.content)
 
     # If this is the first message, generate a title
     if is_first_message:
-        title = await generate_conversation_title(request.content)
+        title = await generate_conversation_title(req.content)
         await storage.update_conversation_title(conversation_id, title)
 
     # Run the 3-stage council process
     stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
-        request.content,
-        tier=request.tier,
-        dan_mode=request.dan_mode
+        req.content,
+        tier=req.tier,
+        dan_mode=req.dan_mode
     )
 
-    # Add assistant message with all stages
+    # Add assistant message with all stages AND metadata
     await storage.add_assistant_message(
         conversation_id,
         stage1_results,
         stage2_results,
-        stage3_result
+        stage3_result,
+        label_to_model=metadata.get("label_to_model"),
+        aggregate_rankings=metadata.get("aggregate_rankings")
     )
 
     # Return the complete response with metadata
@@ -241,57 +368,76 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
 
 
 @app.post("/api/conversations/{conversation_id}/message/stream")
-async def send_message_stream(conversation_id: str, request: SendMessageRequest):
+@limiter.limit("10/minute")
+async def send_message_stream(
+    request,
+    conversation_id: str,
+    req: SendMessageRequest,
+    user_id: Optional[str] = Depends(get_optional_user_id)
+):
     """
     Send a message and stream the 3-stage council process.
     Returns Server-Sent Events as each stage completes.
     """
+    if not validate_uuid(conversation_id):
+        raise HTTPException(status_code=400, detail="Invalid conversation ID format")
+
     # Check if conversation exists
-    conversation = await storage.get_conversation(conversation_id)
-    if conversation is None:
+    db_conversation = await storage.get_conversation(conversation_id)
+    if db_conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
+    # If user is authenticated, check access
+    if user_id and not await storage.verify_conversation_access(conversation_id, user_id):
+        raise HTTPException(status_code=403, detail="Access denied")
+
     # Check if this is the first message
-    is_first_message = len(conversation["messages"]) == 0
+    is_first_message = len(db_conversation["messages"]) == 0
 
     async def event_generator():
         try:
             # Add user message
-            await storage.add_user_message(conversation_id, request.content)
+            await storage.add_user_message(conversation_id, req.content)
 
             # Start title generation in parallel (don't await yet)
             title_task = None
             if is_first_message:
-                title_task = asyncio.create_task(generate_conversation_title(request.content))
+                title_task = asyncio.create_task(generate_conversation_title(req.content))
 
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content, request.tier, request.dan_mode)
+            stage1_results = await stage1_collect_responses(req.content, req.tier, req.dan_mode)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings
             yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
-            stage2_results, label_to_model = await stage2_collect_rankings(request.content, stage1_results, request.tier)
+            stage2_results, label_to_model = await stage2_collect_rankings(req.content, stage1_results, req.tier)
             aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
             yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
 
             # Stage 3: Synthesize final answer
             yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
-            stage3_result = await stage3_synthesize_final(request.content, stage1_results, stage2_results, request.tier)
+            stage3_result = await stage3_synthesize_final(req.content, stage1_results, stage2_results, req.tier)
             yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
 
-            # Wait for title generation if it was started
+            # Wait for title generation if it was started (with error handling)
             if title_task:
-                title = await title_task
-                await storage.update_conversation_title(conversation_id, title)
-                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                try:
+                    title = await title_task
+                    await storage.update_conversation_title(conversation_id, title)
+                    yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                except Exception:
+                    # Don't fail the whole request if title generation fails
+                    pass
 
-            # Save complete assistant message
+            # Save complete assistant message with metadata
             await storage.add_assistant_message(
                 conversation_id,
                 stage1_results,
                 stage2_results,
-                stage3_result
+                stage3_result,
+                label_to_model=label_to_model,
+                aggregate_rankings=aggregate_rankings
             )
 
             # Send completion event
@@ -311,20 +457,29 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
     )
 
 
-
 @app.post("/api/conversations/{conversation_id}/message/audio")
+@limiter.limit("10/minute")
 async def send_audio_message(
+    request,
     conversation_id: str,
     audio: UploadFile = File(...),
-    tier: str = "pro"
+    tier: str = "pro",
+    user_id: Optional[str] = Depends(get_optional_user_id)
 ):
     """
     Receive audio, transcribe it, run council, and stream back events + TTS audio.
     """
+    if not validate_uuid(conversation_id):
+        raise HTTPException(status_code=400, detail="Invalid conversation ID format")
+
     # Check conversation
-    conversation = await storage.get_conversation(conversation_id)
-    if conversation is None:
+    db_conversation = await storage.get_conversation(conversation_id)
+    if db_conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
+
+    # If user is authenticated, check access
+    if user_id and not await storage.verify_conversation_access(conversation_id, user_id):
+        raise HTTPException(status_code=403, detail="Access denied")
 
     # Save temp audio file
     temp_filename = f"temp_{uuid.uuid4()}.webm"
@@ -341,8 +496,8 @@ async def send_audio_message(
 
     # Re-use the existing stream logic, but wrapped to handle the transcription
     # We will yield an initial event with the transcription so frontend can display it
-    
-    is_first_message = len(conversation["messages"]) == 0
+
+    is_first_message = len(db_conversation["messages"]) == 0
 
     async def event_generator():
         try:
@@ -371,24 +526,19 @@ async def send_audio_message(
             # Stage 3
             yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
             stage3_result = await stage3_synthesize_final(transcription, stage1_results, stage2_results, tier)
-            
+
             # Generate TTS Audio for the final response
             tts_filename = f"response_{uuid.uuid4()}.mp3"
             audio_url = None
             try:
-                # We need to save this file deeply or serve it. 
-                # For simplicity, we'll assume a static file server or base64.
-                # Base64 is safer for stateless deployment without S3.
-                # Actually, let's just create the file and read it to base64.
                 await voice.synthesize_speech(stage3_result["response"], tts_filename)
-                
+
                 with open(tts_filename, "rb") as f:
                     audio_data = f.read()
                     import base64
                     audio_base64 = base64.b64encode(audio_data).decode('utf-8')
                     audio_url = f"data:audio/mp3;base64,{audio_base64}"
-            except Exception as e:
-                print(f"TTS Error: {e}")
+            except Exception:
                 # Don't fail the whole request if TTS fails
                 pass
             finally:
@@ -398,18 +548,23 @@ async def send_audio_message(
             # Attach audio to the stage3 complete event
             yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result, 'audio': audio_url})}\n\n"
 
-            # Title update
+            # Title update with error handling
             if title_task:
-                title = await title_task
-                await storage.update_conversation_title(conversation_id, title)
-                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                try:
+                    title = await title_task
+                    await storage.update_conversation_title(conversation_id, title)
+                    yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                except Exception:
+                    pass
 
-            # Save assistant message
+            # Save assistant message with metadata
             await storage.add_assistant_message(
                 conversation_id,
                 stage1_results,
                 stage2_results,
-                stage3_result
+                stage3_result,
+                label_to_model=label_to_model,
+                aggregate_rankings=aggregate_rankings
             )
 
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
@@ -428,27 +583,36 @@ async def send_audio_message(
 
 
 @app.post("/api/generate-image")
-async def api_generate_image(request: ImageGenerationRequest):
+@limiter.limit("20/minute")
+async def api_generate_image(
+    request,
+    req: ImageGenerationRequest,
+    user_id: Optional[str] = Depends(get_optional_user_id)
+):
     """Generate an image using Flux via OpenRouter."""
-    result = await generate_image(request.prompt)
+    result = await generate_image(req.prompt)
     if not result:
         raise HTTPException(status_code=500, detail="Image generation failed")
     return result
 
+
 @app.post("/api/deep-research/stream")
-async def api_deep_research_stream(request: ImageGenerationRequest):
+@limiter.limit("5/minute")
+async def api_deep_research_stream(
+    request,
+    req: ImageGenerationRequest,
+    user_id: Optional[str] = Depends(get_optional_user_id)
+):
     """
     Run Deep Research workflow.
-    Re-using ImageGenerationRequest temporarily for 'prompt' field, or create a new model.
-    Actually, let's just use the 'prompt' from the body.
     """
-    prompt = request.prompt
-    
+    prompt = req.prompt
+
     async def event_generator():
         try:
             async for update in run_deep_research(prompt):
                 yield f"data: {json.dumps(update)}\n\n"
-            
+
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"

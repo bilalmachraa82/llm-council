@@ -14,7 +14,7 @@ export default function LandingPage({ onEnter }) {
 
             <div className="landing-content">
                 <div className="landing-header">
-                    <span className="badge">LIVE v2.2</span>
+                    <span className="badge">LIVE v2.3</span>
                     <span className="brand">AiParaTi</span>
                 </div>
 
@@ -45,6 +45,21 @@ export default function LandingPage({ onEnter }) {
 
                 {/* VISUAL & UNCENSORED SECTION */}
                 <div className="feature-showcase">
+                    {/* NEW: Deep Research Council Feature Card */}
+                    <div className="feature-card glass-panel featured">
+                        <div className="new-ribbon">NEW</div>
+                        <div className="feature-icon">🧠</div>
+                        <h3>Deep Research Council</h3>
+                        <p>Multi-Mind Consensus Engine. 3 AI streams collaborate in parallel:</p>
+                        <div className="stream-list">
+                            <div className="stream-item"><span className="dot velocity"></span><strong>Velocity</strong> (Gemini 3 Flash)</div>
+                            <div className="stream-item"><span className="dot citation"></span><strong>Citation</strong> (Perplexity Deep)</div>
+                            <div className="stream-item"><span className="dot wildcard"></span><strong>Wildcard</strong> (Grok 4.1)</div>
+                        </div>
+                        <p className="how-to-activate">
+                            <strong>Como ativar:</strong> No Chat, clica no botão <span className="icon-btn">⚡</span> → <span className="icon-btn active">🧠</span> junto à caixa de texto.
+                        </p>
+                    </div>
                     <div className="feature-card glass-panel">
                         <div className="feature-icon">🎨</div>
                         <h3>Flux Image Studio</h3>
@@ -66,32 +81,19 @@ export default function LandingPage({ onEnter }) {
                 <div className="tier-comparison-section">
                     <h3 className="section-title">Choose Your Allegiance</h3>
                     <div className="tier-grid">
-                        <div className="tier-card budget">
-                            <div className="tier-header">
-                                <span className="tier-badge">Budget</span>
-                                <h4>Smart & Affordable</h4>
-                                <div className="tier-price">Best Value</div>
-                            </div>
-                            <div className="tier-models">
-                                <ul>
-                                    <li>DeepSeek V3.2 Thinking</li>
-                                    <li>Gemini 2.5 Flash</li>
-                                    <li>Llama 4 Maverick</li>
-                                </ul>
-                            </div>
-                        </div>
-
                         <div className="tier-card premium">
                             <div className="tier-header">
                                 <span className="tier-badge">Premium</span>
-                                <h4>Top 5 Global Minds</h4>
-                                <div className="tier-price">Max Intelligence</div>
+                                <h4>Standard Pro Council</h4>
+                                <div className="tier-price">~$45/query</div>
                             </div>
                             <div className="tier-models">
                                 <ul>
-                                    <li>GPT-5.2 <span className="model-score">#1</span></li>
-                                    <li>Gemini 3 Pro <span className="model-score">#1</span></li>
-                                    <li>Claude Opus 4.5 <span className="model-score">#1</span></li>
+                                    <li>GPT-5.1 <span className="model-score">OpenAI</span></li>
+                                    <li>Gemini 3 Pro <span className="model-score">Google</span></li>
+                                    <li>Claude Sonnet 4.5 <span className="model-score">Anthropic</span></li>
+                                    <li>Claude Opus 4.5 <span className="model-score">Anthropic</span></li>
+                                    <li>Grok-4 <span className="model-score">xAI</span></li>
                                 </ul>
                             </div>
                         </div>
@@ -103,12 +105,13 @@ export default function LandingPage({ onEnter }) {
                                 <div className="tier-price">No Limits</div>
                             </div>
                             <div className="tier-models">
-                                <p><strong>Featuring:</strong></p>
+                                <p><strong>Elite 2026:</strong></p>
                                 <ul>
-                                    <li>Hermes 3 Unchained</li>
-                                    <li>Dolphin Mistral</li>
-                                    <li>Flux.1 Image Gen</li>
-                                    <li>DAN Mode Active</li>
+                                    <li>Hermes 3 (405B) 🧠</li>
+                                    <li>Dolphin Mistral 🏴‍☠️</li>
+                                    <li>DeepSeek V3 🐉</li>
+                                    <li>Eva-Qwen 2.5 ✍️</li>
+                                    <li>Dolphin Mixtral 8x22B 🐬</li>
                                 </ul>
                             </div>
                         </div>

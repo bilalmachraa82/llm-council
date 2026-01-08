@@ -33,15 +33,17 @@ model Conversation {
 }
 
 model Message {
-  id             String       @id @default(uuid())
-  role           String       // "user" or "assistant"
-  content        String?      // For user messages
-  stage1         Json?        // Stage 1 results (for assistant)
-  stage2         Json?        // Stage 2 results (for assistant)
-  stage3         Json?        // Stage 3 results (for assistant)
-  conversationId String       @map("conversation_id")
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now()) @map("created_at")
+  id                 String       @id @default(uuid())
+  role               String       // "user" or "assistant"
+  content            String?      // For user messages
+  stage1             Json?        // Stage 1 results (for assistant)
+  stage2             Json?        // Stage 2 results (for assistant)
+  stage3             Json?        // Stage 3 results (for assistant)
+  labelToModel       Json?        @map("label_to_model") // Metadata: anonymous label to model mapping
+  aggregateRankings  Json?        @map("aggregate_rankings") // Metadata: calculated rankings
+  conversationId     String       @map("conversation_id")
+  conversation       Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt          DateTime     @default(now()) @map("created_at")
 
   @@map("messages")
 }

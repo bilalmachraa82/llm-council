@@ -6,8 +6,16 @@ import jwt
 from datetime import datetime, timedelta
 from typing import Optional
 
-# JWT Secret - should be in env vars in production
-JWT_SECRET = os.getenv("JWT_SECRET", "llm-council-secret-key-change-in-prod")
+# JWT Secret - MUST be set in production (fail fast if not set)
+_jwt_secret = os.getenv("JWT_SECRET")
+if not _jwt_secret:
+    if os.getenv("ENVIRONMENT") == "production":
+        raise ValueError("JWT_SECRET must be set in production")
+    # Only use default in development
+    _jwt_secret = "dev-only-secret-change-in-production"
+
+JWT_SECRET = _jwt_secret
+
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24 * 7  # 1 week
 

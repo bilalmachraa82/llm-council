@@ -18,6 +18,50 @@
   background: var(--bg-void);
 }
 
+/* Error Banner Styles */
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #fed7d7;
+  border-bottom: 1px solid #fc8181;
+  color: #c53030;
+  font-size: 14px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.error-banner span {
+  flex: 1;
+}
+
+.error-dismiss {
+  background: none;
+  border: none;
+  color: #c53030;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 8px;
+  margin-left: 12px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.error-dismiss:hover {
+  transform: scale(1.1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Mobile Layout */
 @media (max-width: 768px) {
   .app {

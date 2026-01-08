@@ -12,6 +12,9 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 # Council Configuration Type: "STANDARD" or "UNCENSORED"
 COUNCIL_TYPE = "UNCENSORED"
 
+# Perplexity Key (Grok is now via OpenRouter)
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
+
 # Standard Pro Council (~$45/query)
 STANDARD_COUNCIL_MODELS = [
     "openai/gpt-5.1",                # $1.25/$10.00 - Latest GPT
@@ -101,11 +104,19 @@ DATA_DIR = "data/conversations"
 SEARCH_PROVIDER = os.getenv("SEARCH_PROVIDER", "duckduckgo")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
-# Deep Research Models - 5 Agent System
+# Deep Research Models - 5 Agent System (Multi-Mind v2 - 2026 Frontier)
 DEEP_RESEARCH_MODELS = {
-    "lead": "google/gemini-2.0-flash-thinking-exp-1219",  # Planning
-    "analyst": "anthropic/claude-3.5-sonnet",             # Data Extraction
-    "trend_hunter": "google/gemini-2.0-flash-exp",        # Signals
+    # 1. VELOCITY Stream (Gemini 3)
+    "velocity_search": "google/gemini-3-flash-preview", # Flash 3 via OpenRouter
+    
+    # 2. CITATION Stream (Perplexity) - Requires PERPLEXITY_API_KEY
+    "citation_search": "sonar-deep-research", # Direct Perplexity API
+    
+    # 3. WILDCARD Stream (Grok 4) - Via OpenRouter
+    "wildcard_search": "x-ai/grok-4.1-fast", # Grok 4.1 via OpenRouter
+    
+    # Support Roles (Brains of the Council)
+    "lead": "google/gemini-3-pro-preview",                # Planner
     "skeptic": "anthropic/claude-3.5-sonnet",             # Logic/Fact Checking
-    "editor": "google/gemini-2.0-pro-exp-02-05"           # Synthesis
+    "editor": "google/gemini-3-pro-preview"               # Synthesis
 }

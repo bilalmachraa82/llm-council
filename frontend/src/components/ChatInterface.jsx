@@ -85,8 +85,39 @@ export default function ChatInterface({
       <div className="messages-container">
         {conversation.messages.length === 0 ? (
           <div className="empty-state">
-            <h2>Start a conversation</h2>
-            <p>Ask a question to consult the LLM Council</p>
+            <div className="hero-content">
+              <h1>LLM Council <span className="version-badge">2.3</span></h1>
+              <p className="subtitle">Frontier consensus engine active.</p>
+            </div>
+
+            <div className="feature-card new-feature-glow">
+              <div className="card-header">
+                <span className="icon">🧠</span>
+                <h3>Deep Research Council</h3>
+                <span className="new-badge">NEW</span>
+              </div>
+              <p>
+                Engage the <strong>Multi-Mind Consensus Engine</strong>.
+                Three distinct intelligence streams collaborate to find the truth:
+              </p>
+              <div className="engine-grid">
+                <div className="engine-item">
+                  <span className="dot velocity"></span>
+                  <strong>Velocity</strong> (Gemini 3 Flash)
+                </div>
+                <div className="engine-item">
+                  <span className="dot citation"></span>
+                  <strong>Citation</strong> (Perplexity Deep)
+                </div>
+                <div className="engine-item">
+                  <span className="dot wildcard"></span>
+                  <strong>Wildcard</strong> (Grok 4.1)
+                </div>
+              </div>
+              <p className="instruction">
+                Click the <span className="icon-inline">⚡</span> button below to activate.
+              </p>
+            </div>
           </div>
         ) : (
           conversation.messages.map((msg, index) => (
@@ -106,9 +137,9 @@ export default function ChatInterface({
 
                   {/* Deep Research Component */}
                   {msg.isDeepResearch && (
-                    <DeepResearchStatus 
-                        events={msg.deepResearchEvents || []} 
-                        isComplete={msg.isComplete}
+                    <DeepResearchStatus
+                      events={msg.deepResearchEvents || []}
+                      isComplete={msg.isComplete}
                     />
                   )}
 
@@ -180,12 +211,18 @@ export default function ChatInterface({
       <div className="input-area-wrapper">
         <form className="input-form full-width" onSubmit={handleSubmit}>
           <div className="input-container">
-             {/* Deep Research Toggle */}
-             <button
+            {/* Deep Research Toggle */}
+            <button
               type="button"
-              className={`mode-toggle-btn ${isDeepResearchMode ? 'active' : ''}`}
+              className={`mode-toggle-btn ${isDeepResearchMode ? 'active premium-glow' : ''}`}
               onClick={() => setIsDeepResearchMode(!isDeepResearchMode)}
-              title={isDeepResearchMode ? "Reference Mode Active" : "Enable Deep Research"}
+              title={isDeepResearchMode ? "Frontier Research Mode: ACTIVE" : "Enable Frontier Deep Research"}
+              style={isDeepResearchMode ? {
+                background: 'linear-gradient(45deg, #00f3ff, #bd00ff)',
+                color: '#fff',
+                border: 'none',
+                boxShadow: '0 0 15px rgba(189, 0, 255, 0.5)'
+              } : {}}
             >
               {isDeepResearchMode ? '🧠' : '⚡'}
             </button>
@@ -202,17 +239,17 @@ export default function ChatInterface({
             />
             {/* Hide Image Gen button in Deep Research mode to reduce clutter */}
             {!isDeepResearchMode && (
-                <button
+              <button
                 type="button"
                 className="image-gen-button"
                 onClick={handleImageClick}
                 disabled={!input.trim() || isLoading}
                 title="Generate Image with Flux"
-                >
+              >
                 🎨
-                </button>
+              </button>
             )}
-            
+
             <button
               type="submit"
               className="send-button"
