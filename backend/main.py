@@ -2,7 +2,7 @@
 
 import os
 import shutil
-from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends, status
+from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, field_validator
@@ -593,7 +593,7 @@ async def api_generate_image(
 @app.post("/api/deep-research/stream")
 @limiter.limit("5/minute")
 async def api_deep_research_stream(
-    request,
+    request: Request,
     req: ImageGenerationRequest,
     user_id: Optional[str] = Depends(get_optional_user_id)
 ):
