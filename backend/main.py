@@ -261,7 +261,7 @@ async def root():
 @app.get("/api/conversations", response_model=List[ConversationMetadata])
 @limiter.limit("60/minute")
 async def list_conversations(
-    request,
+    request: Request,
     user_id: Optional[str] = Depends(get_optional_user_id)
 ):
     """List all conversations (metadata only) - scoped to user if authenticated."""
@@ -271,7 +271,7 @@ async def list_conversations(
 @app.post("/api/conversations", response_model=Conversation)
 @limiter.limit("20/minute")
 async def create_conversation(
-    request,
+    request: Request,
     req: CreateConversationRequest,
     user_id: Optional[str] = Depends(get_optional_user_id)
 ):
@@ -284,7 +284,7 @@ async def create_conversation(
 @app.get("/api/conversations/{conversation_id}", response_model=Conversation)
 @limiter.limit("60/minute")
 async def get_conversation(
-    request,
+    request: Request,
     conversation_id: str,
     user_id: Optional[str] = Depends(get_optional_user_id)
 ):
@@ -306,7 +306,7 @@ async def get_conversation(
 @app.post("/api/conversations/{conversation_id}/message")
 @limiter.limit("10/minute")
 async def send_message(
-    request,
+    request: Request,
     conversation_id: str,
     req: SendMessageRequest,
     user_id: Optional[str] = Depends(get_optional_user_id)
@@ -371,7 +371,7 @@ async def send_message(
 @app.post("/api/conversations/{conversation_id}/message/stream")
 @limiter.limit("10/minute")
 async def send_message_stream(
-    request,
+    request: Request,
     conversation_id: str,
     req: SendMessageRequest,
     user_id: Optional[str] = Depends(get_optional_user_id)
