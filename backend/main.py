@@ -255,6 +255,75 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
     }
 
 
+# ============== Password Reset ==============
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+@app.post("/auth/forgot-password")
+async def forgot_password(req: ForgotPasswordRequest):
+    """
+    Request a password reset link.
+    Generates a token and sends an email (Mock).
+    """
+    user = await storage.get_user_by_email(req.email)
+    if not user:
+        # Prevent email enumeration: return OK even if email not found
+        return {"message": "If this email is registered, you will receive a reset link."}
+
+    # Generate token
+    raw_token = auth.create_random_token()
+    token_hash = auth.generate_reset_token_hash(raw_token)
+    expires_at = datetime.utcnow() + timedelta(hours=1) # 1 hour expiry
+
+    # Save to DB
+    await storage.save_reset_token(user["id"], token_hash, expires_at)
+
+    # Construct Link (Point to Frontend)
+    # Use environment var for frontend URL if available, else standard URLs
+    frontend_url = os.getenv("FRONTEND_URL", "https://llm-council-bilal.netlify.app")
+    reset_link = f"{frontend_url}/reset-password?token={raw_token}"
+
+    # Send Email (Mock)
+    from .email_service import EmailService
+    await EmailService.send_reset_password_email(req.email, reset_link)
+
+    return {"message": "If this email is registered, you will receive a reset link."}
+
+
+@app.post("/auth/reset-password")
+async def reset_password(req: ResetPasswordRequest):
+    """
+    Reset password using a token.
+    """
+    token_hash = auth.generate_reset_token_hash(req.token)
+    
+    # Verify token
+    reset_data = await storage.get_reset_token(token_hash)
+    if not reset_data:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
+    # Check expiry (naive datetime check)
+    if reset_data["expiresAt"].replace(tzinfo=None) < datetime.utcnow():
+        await storage.delete_reset_token(token_hash)
+        raise HTTPException(status_code=400, detail="Token expired")
+
+    # Hash new password
+    new_hash = auth.hash_password(req.new_password)
+    
+    # Update user
+    await storage.update_user_password(reset_data["userId"], new_hash)
+    
+    # Cleanup token
+    await storage.delete_reset_token(token_hash)
+    
+    return {"message": "Password reset successfully. You can now login."}
+
+
 @app.get("/")
 async def root():
     """Health check endpoint."""

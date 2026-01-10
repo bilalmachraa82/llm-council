@@ -342,3 +342,45 @@ async def verify_conversation_access(conversation_id: str, user_id: str) -> bool
     # User has access if conversation has no owner (legacy/public) or belongs to them
     return conversation.userId is None or conversation.userId == user_id
 
+
+async def save_reset_token(user_id: str, token_hash: str, expires_at: "datetime") -> None:
+    """Save a password reset token."""
+    db = await get_db()
+    # Delete any existing tokens for this user first
+    await db.resettoken.delete_many(where={"userId": user_id})
+    
+    await db.resettoken.create(data={
+        "userId": user_id,
+        "token": token_hash,
+        "expiresAt": expires_at
+    })
+
+async def get_reset_token(token_hash: str) -> Optional[Dict[str, Any]]:
+    """Find a reset token by its hash."""
+    db = await get_db()
+    token = await db.resettoken.find_unique(
+        where={"token": token_hash},
+        include={"user": True}
+    )
+    if not token:
+        return None
+    
+    return {
+        "userId": token.userId,
+        "expiresAt": token.expiresAt,
+        "user_email": token.user.email
+    }
+
+async def delete_reset_token(token_hash: str) -> None:
+    """Delete a used token."""
+    db = await get_db()
+    await db.resettoken.delete(where={"token": token_hash})
+
+async def update_user_password(user_id: str, password_hash: str) -> None:
+    """Update user password."""
+    db = await get_db()
+    await db.user.update(
+        where={"id": user_id},
+        data={"passwordHash": password_hash}
+    )
+

@@ -21,3 +21,6 @@ frontend/dist/
 frontend/.vite/
 .vercel
 .env*.local
+
+# Local Netlify folder
+.netlify

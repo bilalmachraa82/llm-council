@@ -59,3 +59,17 @@ async def get_current_user_id(authorization: str) -> Optional[str]:
     token = authorization.replace("Bearer ", "")
     payload = decode_access_token(token)
     return payload.get("sub") if payload else None
+
+
+def generate_reset_token_hash(token: str) -> str:
+    """
+    Hash a reset token for storage. 
+    Using SHA256 since high-entropy random tokens don't need bcrypt.
+    """
+    import hashlib
+    return hashlib.sha256(token.encode()).hexdigest()
+
+def create_random_token() -> str:
+    """Generate a high-entropy random string URL-safe."""
+    import secrets
+    return secrets.token_urlsafe(32)

@@ -17,8 +17,20 @@ model User {
   plan         String         @default("free") // 'free', 'starter', 'pro'
   createdAt    DateTime       @default(now()) @map("created_at")
   conversations Conversation[]
+  resetTokens  ResetToken[]
 
   @@map("users")
+}
+
+model ResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique // Hashed token
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("reset_tokens")
 }
 
 model Conversation {
