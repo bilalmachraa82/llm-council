@@ -30,6 +30,12 @@ app = FastAPI(title="LLM Council API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+print("--- STARTUP: VERSION PROBE ACTIVE (v2) ---")
+
+@app.get("/version")
+async def version():
+    return {"version": "2", "features": ["password-reset"]}
+
 # CORS origins from environment or defaults
 base_origins = [
     "http://localhost:5173",
