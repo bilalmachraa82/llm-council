@@ -40,6 +40,7 @@ base_origins = [
     "https://llm-council-aiparati.vercel.app",
     "https://llm-council-git-main-bilalmachraa82s-projects.vercel.app",
     "https://llm-council-neon.vercel.app",
+    "https://llm-council-bilal.netlify.app",
 ]
 
 env_origins = os.getenv("CORS_ORIGINS", "")
@@ -49,14 +50,16 @@ if env_origins:
 # Use a set to deduplicate, then convert back to list
 origins = list(set(base_origins))
 
-# Regex pattern to match all Vercel preview deployments
+# Regex pattern to match all Vercel and Netlify deployments
 import re
 vercel_pattern = r"https://.*\.vercel\.app"
+netlify_pattern = r"https://.*\.netlify\.app"
+allow_origin_regex = f"{vercel_pattern}|{netlify_pattern}"
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # Use explicit list instead of wildcard
-    allow_origin_regex=vercel_pattern,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
