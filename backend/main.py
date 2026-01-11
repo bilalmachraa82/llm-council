@@ -754,7 +754,41 @@ async def get_active_agents(user_id: str = Depends(get_optional_user_id)):
     return agents
 
 
-if __name__ == "__main__":
-    import uvicorn
     port = int(os.getenv("PORT", 8001))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+# Mount Frontend (Must be last to avoid conflicts)
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Serve static assets (JS/CSS/Images)
+# Vite puts assets in 'dist/assets', so we mount that to /assets
+if os.path.exists("frontend/dist/assets"):
+    app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+
+# Serve other root files verify (e.g. favicon, manifest) if needed, 
+# or just rely on the catch-all.
+# Ideally, we verify "frontend/dist" exists.
+
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    """
+    Serve the frontend SPA.
+    If a file exists in dist, serve it (e.g. favicon.ico).
+    Otherwise, serve index.html for client-side routing.
+    """
+    # 1. API routes are already handled above (FastAPI logic).
+    
+    # 2. Check if specific file exists in dist
+    dist_dir = "frontend/dist"
+    file_path = os.path.join(dist_dir, full_path)
+    
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    # 3. Fallback to index.html for SPA routing
+    index_path = os.path.join(dist_dir, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    
+    return {"status": "Frontend not built or found"}

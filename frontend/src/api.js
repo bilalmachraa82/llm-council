@@ -2,7 +2,7 @@
  * API client for the LLM Council backend.
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://llm-council-backend-production.up.railway.app';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export const api = {
   /**
