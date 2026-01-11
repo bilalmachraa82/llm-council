@@ -35,7 +35,7 @@ print("--- STARTUP: VERSION PROBE ACTIVE (v2) ---")
 
 @app.get("/version")
 async def version():
-    return {"version": "2", "features": ["password-reset"]}
+    return {"version": "3", "features": ["password-reset", "static-serving"]}
 
 # CORS origins from environment or defaults
 base_origins = [
