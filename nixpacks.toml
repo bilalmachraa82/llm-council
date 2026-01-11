@@ -10,7 +10,10 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "cd frontend && npm run build"
+  "cd frontend && npm run build",
+  "echo '--- BUILD COMPLETE listing frontend ---'",
+  "ls -la frontend",
+  "ls -la frontend/dist || echo 'DIST NOT FOUND IN BUILD'"
 ]
 
 [start]
