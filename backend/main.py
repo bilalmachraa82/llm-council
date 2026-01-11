@@ -331,10 +331,65 @@ async def reset_password(req: ResetPasswordRequest):
     return {"message": "Password reset successfully. You can now login."}
 
 
-@app.get("/")
-async def root():
+@app.get("/api/health")
+async def health_check():
     """Health check endpoint."""
     return {"status": "ok", "service": "LLM Council API"}
+
+# Mount Frontend (Must be last to avoid conflicts)
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# DEBUG: Check if frontend built
+print("--- CHECKING FRONTEND BUILD ---")
+dist_path = os.path.abspath("frontend/dist")
+if os.path.exists(dist_path):
+    print(f"Frontend dist found at: {dist_path}")
+    print(f"Contents: {os.listdir(dist_path)}")
+    if os.path.exists(os.path.join(dist_path, "assets")):
+         print(f"Assets: {os.listdir(os.path.join(dist_path, 'assets'))}")
+else:
+    print(f"!!! FRONTEND DIST NOT FOUND AT {dist_path} !!!")
+    print(f"Current dir: {os.getcwd()}")
+    print(f"Contents: {os.listdir('.')}")
+
+# Serve static assets (JS/CSS/Images)
+# Vite puts assets in 'dist/assets', so we mount that to /assets
+if os.path.exists("frontend/dist/assets"):
+    app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+
+@app.get("/")
+async def serve_root():
+    """Serve index.html at root."""
+    index_path = "frontend/dist/index.html"
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"status": "Frontend not found (index.html missing)", "cwd": os.getcwd()}
+
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    """
+    Serve the frontend SPA.
+    If a file exists in dist, serve it (e.g. favicon.ico).
+    Otherwise, serve index.html for client-side routing.
+    """
+    # 2. Check if specific file exists in dist
+    dist_dir = "frontend/dist"
+    file_path = os.path.join(dist_dir, full_path)
+    
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    # 3. Fallback to index.html for SPA routing
+    # But ONLY for non-API routes.
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="API endpoint not found")
+
+    index_path = os.path.join(dist_dir, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    
+    return {"status": "Frontend not built or found", "path": full_path}
 
 
 @app.get("/api/conversations", response_model=List[ConversationMetadata])
