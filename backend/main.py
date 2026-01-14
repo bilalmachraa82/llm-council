@@ -119,6 +119,21 @@ class ImageGenerationRequest(BaseModel):
         return v.strip()
 
 
+class DeepResearchRequest(BaseModel):
+    """Request for deep research."""
+    prompt: str
+
+    @field_validator('prompt')
+    @classmethod
+    def validate_prompt(cls, v: str) -> str:
+        """Validate prompt - more permissive for research queries."""
+        if not v or not v.strip():
+            raise ValueError('Prompt cannot be empty')
+        if len(v) > 10000:
+            raise ValueError('Prompt cannot exceed 10000 characters')
+        return v.strip()
+
+
 class ConversationMetadata(BaseModel):
     """Conversation metadata for list view."""
     id: str
@@ -741,7 +756,7 @@ async def api_generate_image(
 @limiter.limit("5/minute")
 async def api_deep_research_stream(
     request: Request,
-    req: ImageGenerationRequest,
+    req: DeepResearchRequest,
     user_id: Optional[str] = Depends(get_optional_user_id)
 ):
     """
