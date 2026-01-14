@@ -1,0 +1,17 @@
+# Netlify configuration for LLM Council Frontend
+
+[build]
+  base = "frontend"
+  publish = "dist"
+  command = "npm run build"
+
+# SPA fallback - route all requests to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Environment variables for production
+[context.production.environment]
+  VITE_API_URL = "https://llm-council-backend-v2-production.up.railway.app"
