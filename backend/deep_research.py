@@ -63,7 +63,7 @@ async def search_velocity_gemini(query: str) -> Dict[str, Any]:
             {"role": "system", "content": "You are a high-speed research engine. Be verbose and detailed."},
             {"role": "user", "content": prompt}
         ])
-        content = resp['content']
+        content = resp['content'] if resp else "Velocity Engine: No response received"
     except Exception as e:
         content = f"Velocity Engine Failed: {str(e)}"
 
@@ -130,7 +130,7 @@ async def search_wildcard_grok(query: str) -> Dict[str, Any]:
         
         return {
             "stream": "Wildcard (Grok)",
-            "content": response['content'],
+            "content": response['content'] if response else "Grok: No response received",
             "raw_sources": [] # Grok via OpenRouter might not return sources explicitly unless prompted, but the model has internet access.
         }
     except Exception as e:
@@ -155,6 +155,9 @@ async def check_conflict(council_context: str) -> Dict[str, Any]:
         resp = await query_model(DEEP_RESEARCH_MODELS["skeptic"], [
             {"role": "user", "content": prompt}
         ])
+        
+        if not resp:
+            return {"has_conflict": False}
         
         # Parse JSON from response
         content = resp['content'].replace('```json', '').replace('```', '')
@@ -203,7 +206,7 @@ async def run_consultation(target: str, question: str, original_query: str) -> s
             {"role": "system", "content": "You are providing a specific alternative perspective."},
             {"role": "user", "content": f"Context: {original_query}\n\nSpecific Insight Needed: {question}"}
         ])
-        return res['content']
+        return res['content'] if res else "Grok: No response received"
     
     return "Unknown agent target."
 
@@ -340,6 +343,8 @@ async def run_deep_research(user_query: str):
         {"role": "user", "content": f"Analyze these reports for: '{optimized_query}'\n\n{council_context}"}
     ])
     
+    skeptic_content = skeptic_resp['content'] if skeptic_resp else "Skeptic: Analysis unavailable"
+    
     # --- PHASE 3.5: PARTY MODE (CONSULTATION) ---
     # The Skeptic decides if we need to call someone back to the stand.
     
@@ -393,7 +398,7 @@ async def run_deep_research(user_query: str):
         {council_context}
         
         SKEPTIC AUDIT:
-        {skeptic_resp['content']}
+        {skeptic_content}
         """}
     ])
     
@@ -401,16 +406,18 @@ async def run_deep_research(user_query: str):
     yield {"type": "status", "msg": f"✅ Mission Complete. Time: {duration:.1f}s"}
 
     # Final Result Package
+    editor_content = editor_resp['content'] if editor_resp else "Editor: Synthesis unavailable"
+    
     yield {
         "type": "result", 
         "data": {
-            "report": editor_resp['content'],
+            "report": editor_content,
             "sources": all_raw_sources,
-            "verification_log": skeptic_resp['content'],
+            "verification_log": skeptic_content,
             "debug_streams": {
-                "gemini": gemini_res['content'][:500] + "...",
-                "perplexity": perplexity_res['content'][:500] + "...",
-                "grok": grok_res['content'][:500] + "..."
+                "gemini": (gemini_res.get('content') or '')[:500] + "...",
+                "perplexity": (perplexity_res.get('content') or '')[:500] + "...",
+                "grok": (grok_res.get('content') or '')[:500] + "..."
             }
         }
     }
