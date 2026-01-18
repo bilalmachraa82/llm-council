@@ -18,7 +18,7 @@ PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 # Standard Pro Council (~$45/query) - Named Personas
 STANDARD_COUNCIL_AGENTS = {
     "apollo": {
-        "model": "openai/gpt-5.1",
+        "model": "openai/gpt-4o",  # Real model - OpenAI's best multimodal
         "name": "Apollo",
         "title": "The Strategist",
         "emoji": "🎯",
@@ -27,7 +27,7 @@ STANDARD_COUNCIL_AGENTS = {
         "personality": "Precise, methodical, excels at breaking down complex problems"
     },
     "gemini": {
-        "model": "google/gemini-3-pro",
+        "model": "google/gemini-2.0-flash-exp",  # Real model - Google's latest
         "name": "Gemini",
         "title": "The Polymath",
         "emoji": "🌟",
@@ -36,7 +36,7 @@ STANDARD_COUNCIL_AGENTS = {
         "personality": "Curious, versatile, sees patterns across domains"
     },
     "sonnet": {
-        "model": "anthropic/claude-sonnet-4.5",
+        "model": "anthropic/claude-3.5-sonnet",  # Real model - Anthropic's balanced
         "name": "Sonnet",
         "title": "The Poet",
         "emoji": "📜",
@@ -45,7 +45,7 @@ STANDARD_COUNCIL_AGENTS = {
         "personality": "Thoughtful, articulate, values clarity and precision"
     },
     "opus": {
-        "model": "anthropic/claude-opus-4.5",
+        "model": "anthropic/claude-3-opus",  # Real model - Anthropic's most capable
         "name": "Opus",
         "title": "The Sage",
         "emoji": "🏛️",
@@ -54,7 +54,7 @@ STANDARD_COUNCIL_AGENTS = {
         "personality": "Wise, thorough, provides comprehensive perspectives"
     },
     "grok": {
-        "model": "x-ai/grok-4",
+        "model": "x-ai/grok-2-1212",  # Real model - xAI's latest
         "name": "Grok",
         "title": "The Maverick",
         "emoji": "⚡",
@@ -67,7 +67,7 @@ STANDARD_COUNCIL_AGENTS = {
 # Uncensored Council (Elite 2026) - Named Personas
 UNCENSORED_COUNCIL_AGENTS = {
     "hermes": {
-        "model": "nousresearch/hermes-3-llama-3.1-405b",
+        "model": "nousresearch/hermes-3-llama-3.1-405b",  # Real - best uncensored
         "name": "Hermes",
         "title": "The Oracle",
         "emoji": "🧠",
@@ -76,7 +76,7 @@ UNCENSORED_COUNCIL_AGENTS = {
         "personality": "Wise, unfiltered, sees beyond conventional limits"
     },
     "dolphin": {
-        "model": "openrouter/uncensored-dolphin-mistral-24b-venice",
+        "model": "cognitivecomputations/dolphin-mixtral-8x7b",  # Real - uncensored Mistral
         "name": "Dolphin",
         "title": "The Pirate",
         "emoji": "🏴‍☠️",
@@ -85,7 +85,7 @@ UNCENSORED_COUNCIL_AGENTS = {
         "personality": "Bold, irreverent, challenges assumptions"
     },
     "dragon": {
-        "model": "deepseek/deepseek-chat",
+        "model": "deepseek/deepseek-chat",  # Real - DeepSeek V3
         "name": "Dragon",
         "title": "The Scholar",
         "emoji": "🐉",
@@ -94,7 +94,7 @@ UNCENSORED_COUNCIL_AGENTS = {
         "personality": "Methodical, thorough, data-driven"
     },
     "eva": {
-        "model": "eva-unit-01/eva-qwen-2.5-72b",
+        "model": "qwen/qwen-2.5-72b-instruct",  # Real - Qwen 2.5 72B
         "name": "Eva",
         "title": "The Storyteller",
         "emoji": "✨",
@@ -103,7 +103,7 @@ UNCENSORED_COUNCIL_AGENTS = {
         "personality": "Imaginative, expressive, empathetic"
     },
     "mixtral": {
-        "model": "cognitivecomputations/dolphin-mixtral-8x22b",
+        "model": "mistralai/mixtral-8x22b-instruct",  # Real - Mixtral 8x22B
         "name": "Mixtral",
         "title": "The Diplomat",
         "emoji": "🤝",
@@ -169,8 +169,7 @@ You serve the user's original intent above all else."""
 COUNCIL_MODELS = UNCENSORED_COUNCIL_MODELS if COUNCIL_TYPE == "UNCENSORED" else STANDARD_COUNCIL_MODELS
 
 # Chairman model - synthesizes final response
-# Chairman model - synthesizes final response
-CHAIRMAN_MODEL = "nousresearch/hermes-3-llama-3.1-405b" if COUNCIL_TYPE == "UNCENSORED" else "anthropic/claude-opus-4.5"
+CHAIRMAN_MODEL = "nousresearch/hermes-3-llama-3.1-405b" if COUNCIL_TYPE == "UNCENSORED" else "anthropic/claude-3-opus"  # Real models
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -189,10 +188,10 @@ DATA_DIR = "data/conversations"
 SEARCH_PROVIDER = os.getenv("SEARCH_PROVIDER", "duckduckgo")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
-# Deep Research Agents - 6 Agent System (Multi-Mind v2 - 2026 Frontier)
+# Deep Research Agents - 6 Agent System (Multi-Mind v2)
 DEEP_RESEARCH_AGENTS = {
     "velocity": {
-        "model": "google/gemini-3-flash-preview",
+        "model": "google/gemini-2.0-flash-exp",  # Real - fastest Google model
         "name": "Flash",
         "title": "The Velocity Engine",
         "emoji": "🚀",
@@ -201,7 +200,7 @@ DEEP_RESEARCH_AGENTS = {
         "personality": "Fast, comprehensive, big-picture thinker"
     },
     "citation": {
-        "model": "sonar-deep-research",
+        "model": "perplexity/sonar-pro",  # Real - Perplexity's research model
         "name": "Sonar",
         "title": "The Librarian",
         "emoji": "📚",
@@ -210,7 +209,7 @@ DEEP_RESEARCH_AGENTS = {
         "personality": "Meticulous, scholarly, evidence-obsessed"
     },
     "wildcard": {
-        "model": "x-ai/grok-4.1-fast",
+        "model": "x-ai/grok-2-1212",  # Real - xAI's latest Grok
         "name": "Grok",
         "title": "The Wildcard",
         "emoji": "🃏",
@@ -219,7 +218,7 @@ DEEP_RESEARCH_AGENTS = {
         "personality": "Unpredictable, insightful, challenges groupthink"
     },
     "lead": {
-        "model": "google/gemini-3-pro-preview",
+        "model": "google/gemini-1.5-pro",  # Real - Google's best reasoning
         "name": "Athena",
         "title": "The Strategist",
         "emoji": "🧠",
@@ -228,7 +227,7 @@ DEEP_RESEARCH_AGENTS = {
         "personality": "Wise, methodical, sees the bigger picture"
     },
     "skeptic": {
-        "model": "anthropic/claude-3.5-sonnet",
+        "model": "anthropic/claude-3.5-sonnet",  # Real - Anthropic's balanced
         "name": "Sherlock",
         "title": "The Skeptic",
         "emoji": "🛡️",
@@ -237,7 +236,7 @@ DEEP_RESEARCH_AGENTS = {
         "personality": "Critical, precise, leaves no claim unverified"
     },
     "editor": {
-        "model": "google/gemini-3-pro-preview",
+        "model": "google/gemini-1.5-pro",  # Real - Google's best for synthesis
         "name": "Hemingway",
         "title": "The Editor",
         "emoji": "✍️",

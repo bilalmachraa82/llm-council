@@ -12,26 +12,25 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 COUNCIL_MODE = os.getenv("COUNCIL_MODE", "pro").lower()
 
 if COUNCIL_MODE == "budget":
-    # BUDGET: Smartest LOW-COST models (Dec 2025)
-    # Best intelligence per dollar spent
+    # BUDGET: Smartest LOW-COST models
     COUNCIL_MODELS = [
-        "deepseek/deepseek-v3.2-thinking",   # $0.28/M - Best coding value
-        "google/gemini-2.5-flash",            # ~$0.10/M - 1M context, fast
-        "meta-llama/llama-4-maverick:free",   # FREE - 400B params, strong benchmarks
-        "anthropic/claude-3.5-haiku",         # $0.80/M - Great value reasoning
-        "openai/gpt-5-nano",                  # $0.05/M - Cheapest GPT-5 variant
+        "deepseek/deepseek-chat",             # DeepSeek V3 - excellent value
+        "google/gemini-2.0-flash-exp",        # Fast and cheap
+        "meta-llama/llama-3.1-70b-instruct", # Strong open model
+        "anthropic/claude-3-haiku",           # Affordable Anthropic
+        "openai/gpt-4o-mini",                 # Cheapest GPT-4 variant
     ]
-    CHAIRMAN_MODEL = "deepseek/deepseek-v3.2-thinking"  # Best value reasoning
+    CHAIRMAN_MODEL = "deepseek/deepseek-chat"  # Best value reasoning
 elif COUNCIL_MODE == "ultra":
-    # ULTRA: Highest intelligence models globally (Dec 2025)
+    # ULTRA: Highest intelligence models
     COUNCIL_MODELS = [
-        "openai/gpt-5.2-high",           # #1 OpenAI - 92.4% GPQA
-        "anthropic/claude-opus-4.5-thinking", # #1 WebDev Arena (1519)
-        "google/gemini-3-pro",           # #1 LM Arena (1492), 45.8% HLE
-        "x-ai/grok-4.1-thinking",        # 100% AIME, strong reasoning
-        "z-ai/glm-4.7",                  # 85.7% GPQA - top Chinese model
+        "openai/gpt-4-turbo",                # OpenAI's best
+        "anthropic/claude-3-opus",           # Most capable Claude
+        "google/gemini-1.5-pro",             # Best Google reasoning
+        "x-ai/grok-2-1212",                  # xAI's latest
+        "meta-llama/llama-3.1-405b-instruct", # Largest open model
     ]
-    CHAIRMAN_MODEL = "openai/gpt-5.2-high"
+    CHAIRMAN_MODEL = "anthropic/claude-3-opus"
 else:
     # PRO (Premium): THE 5 SMARTEST AI MODELS IN THE WORLD
     # Pure intelligence ranking based on benchmarks
@@ -68,24 +67,24 @@ def get_models_for_tier(tier: str) -> tuple:
     if tier == "budget":
         return (
             [
-                "deepseek/deepseek-v3.2-thinking",
-                "google/gemini-2.5-flash",
-                "meta-llama/llama-4-maverick:free",   # FREE - 400B params, strong benchmarks
-                "anthropic/claude-3.5-haiku",
-                "openai/gpt-5-nano",
+                "deepseek/deepseek-chat",
+                "google/gemini-2.0-flash-exp",
+                "meta-llama/llama-3.1-70b-instruct",
+                "anthropic/claude-3-haiku",
+                "openai/gpt-4o-mini",
             ],
-            "deepseek/deepseek-v3.2-thinking"
+            "deepseek/deepseek-chat"
         )
     elif tier == "ultra":
         return (
             [
-                "openai/gpt-5.2-high",
-                "anthropic/claude-opus-4.5-thinking",
-                "google/gemini-3-pro",
-                "x-ai/grok-4.1-thinking",
-                "z-ai/glm-4.7",
+                "openai/gpt-4-turbo",
+                "anthropic/claude-3-opus",
+                "google/gemini-1.5-pro",
+                "x-ai/grok-2-1212",
+                "meta-llama/llama-3.1-405b-instruct",
             ],
-            "openai/gpt-5.2-high"
+            "anthropic/claude-3-opus"
         )
     elif tier == "uncensored":
         # Uncensored Council (Elite 2026) - "Total Freedom & Intelligence"
